@@ -1,0 +1,89 @@
+
+## Commands to Run on Linux Server
+
+Here are the key commands you can execute directly on your Linux server (143.47.98.96):
+
+### 1. Connect to the Server
+```bash
+ssh student206@143.47.98.96
+```
+
+### 2. Check Application Status
+```bash
+# Check PM2 process status
+pm2 status
+
+# View application logs
+pm2 logs app206
+
+# Check what's listening on port 4206
+ss -tlnp | grep 4206
+```
+
+### 3. Test Application Locally on Server
+```bash
+# Test the application through Nginx (port 80)
+curl http://localhost/app206/
+
+# Test direct access to Node.js app (port 4206)
+curl http://localhost:4206/app206/
+
+# Check health endpoint
+curl http://localhost/app206/health
+```
+
+### 4. Application Management Commands
+```bash
+# Restart the application
+pm2 restart app206
+
+# Stop the application
+pm2 stop app206
+
+# Start the application
+pm2 start app206
+
+# View detailed info
+pm2 show app206
+
+# Save PM2 configuration
+pm2 save
+```
+
+### 5. Check Server Resources
+```bash
+# Check memory and CPU usage
+htop
+# or
+top
+
+# Check disk space
+df -h
+
+# Check network connections
+netstat -tulpn | grep :80
+netstat -tulpn | grep :4206
+```
+
+### 6. Update Application (if needed)
+```bash
+# Navigate to app directory
+cd ~/webprogramming_with_lilla/exercise
+
+# Pull latest changes
+git pull
+
+# Restart with new changes
+pm2 restart app206
+```
+
+## Current Application Status
+
+Based on our earlier verification:
+- ✅ **Application Status**: Online and running
+- ✅ **Process ID**: 4043845
+- ✅ **Uptime**: 27+ minutes
+- ✅ **Memory Usage**: 66.2MB
+- ✅ **Access URL**: http://143.47.98.96/app206/
+
+The deployment is successful and your TechCorp Solutions application is accessible at **http://143.47.98.96/app206/**

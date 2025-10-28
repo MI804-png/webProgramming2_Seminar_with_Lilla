@@ -1,0 +1,3 @@
+run xampp and write in the vs code prompt
+cd exercise
+node sart.js

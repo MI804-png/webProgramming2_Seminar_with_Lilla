@@ -1,0 +1,13 @@
+# SCP Command to upload files to Linux server
+# Run this from c:\webprogramming2_homework\exercise directory
+
+# Upload entire exercise folder
+scp -r * student206@143.47.98.96:/home/student206/exercise/
+
+# Or upload specific files
+scp package.json student206@143.47.98.96:/home/student206/exercise/
+scp start.js student206@143.47.98.96:/home/student206/exercise/
+scp ecosystem.config.js student206@143.47.98.96:/home/student206/exercise/
+scp -r views student206@143.47.98.96:/home/student206/exercise/
+scp -r routes student206@143.47.98.96:/home/student206/exercise/
+scp -r public student206@143.47.98.96:/home/student206/exercise/

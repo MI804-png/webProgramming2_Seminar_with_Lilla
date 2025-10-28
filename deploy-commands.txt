@@ -1,0 +1,29 @@
+# Commands for Linux Server Deployment (143.47.98.96)
+
+# 1. Connect to Linux server via SSH
+ssh student206@143.47.98.96
+# Password: mikha@2001 (change on first login)
+
+# 2. Create exercise directory
+mkdir -p /home/student206/exercise
+cd /home/student206/exercise
+
+# 3. Upload files (use WinSCP or scp command)
+# Upload all files from c:\webprogramming2_homework\exercise\ to /home/student206/exercise/
+
+# 4. Install dependencies on Linux
+npm install
+
+# 5. Start with PM2 on Linux
+pm2 start ecosystem.config.js --env production
+pm2 list
+pm2 save
+
+# 6. Access your application
+# http://143.47.98.96/app206/
+
+# Useful PM2 commands on Linux:
+pm2 logs app206
+pm2 restart app206
+pm2 stop app206
+pm2 delete app206
