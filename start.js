@@ -33,20 +33,15 @@ if (BASE_PATH.endsWith('/') && BASE_PATH !== '/') BASE_PATH = BASE_PATH.slice(0,
 
 // MySQL Express Session
 app.use(session({
-    key: 'session_cookie_name',
+    name: 'techcorp.session',
     secret: SESSION_SECRET,
-    store: new MySQLStore({
-        host: DB_HOST,
-        user: DB_USER,
-        password: DB_PASS,
-        database: DB_NAME,
-        port: DB_PORT,
-        createDatabaseTable: true
-    }),
     resave: false,
     saveUninitialized: false,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24, // 24 hours
+        secure: false,
+        httpOnly: false,
+        sameSite: 'lax'
     }
 }));
 
@@ -81,13 +76,72 @@ connection.connect((err) => {
         console.log("Connected to MySQL database");
         // Ensure default users exist for demo/login
         ensureDefaultUsers();
-    } else {
-        console.log("Database Connection Failed:", err);
+    } else {        console.log("Database Connection Failed:", err);
+        console.log("Application will run with limited functionality for demo purposes");
+          // Create mock database with in-memory storage
+        const mockUsers = [
+            { id: 1, username: 'admin', email: 'admin@techcorp.com', password_hash: genPassword('admin123'), role: 'admin' },
+            { id: 2, username: 'testuser', email: 'test@techcorp.com', password_hash: genPassword('hello'), role: 'registered' }
+        ];
+        
+        let nextUserId = 3;
+        
+        app.locals.db = {
+            mockUsers: mockUsers, // Store reference to users array
+            nextUserId: nextUserId,
+            query: (sql, params, callback) => {
+                if (typeof params === 'function') {
+                    callback = params;
+                    params = [];
+                }
+                console.log("Mock DB Query:", sql, params);
+                
+                try {
+                    // Handle user authentication queries
+                    if (sql.includes('SELECT * FROM users WHERE username = ?')) {
+                        const user = mockUsers.find(u => u.username === params[0]);
+                        callback(null, user ? [user] : []);
+                    }
+                    // Handle user existence check for registration
+                    else if (sql.includes('SELECT * FROM users WHERE username = ? OR email = ?')) {
+                        const user = mockUsers.find(u => u.username === params[0] || u.email === params[1]);
+                        callback(null, user ? [user] : []);
+                    }
+                    // Handle user registration
+                    else if (sql.includes('INSERT INTO users')) {
+                        const [username, email, password_hash, role] = params;
+                        const newUser = {
+                            id: nextUserId++,
+                            username,
+                            email,
+                            password_hash,
+                            role,
+                            created_at: new Date()
+                        };
+                        mockUsers.push(newUser);
+                        console.log('Mock DB: User registered successfully:', username);
+                        console.log('Mock DB: Current users:', mockUsers.map(u => u.username));
+                        callback(null, { insertId: newUser.id });
+                    }
+                    // Handle user selection by ID (for deserializeUser)
+                    else if (sql.includes('SELECT * FROM users WHERE id = ?')) {
+                        const user = mockUsers.find(u => u.id === parseInt(params[0]));
+                        callback(null, user ? [user] : []);
+                    }
+                    // Default: return empty results
+                    else {
+                        callback(null, []);
+                    }
+                } catch (error) {
+                    console.error('Mock DB Error:', error);
+                    callback(error);
+                }
+            }
+        };
     }
 });
 
-// Make connection available to other modules
-app.locals.db = connection;
+// Note: app.locals.db is set above in the connection callback
 
 // Passport configuration
 const customFields = {
@@ -96,26 +150,71 @@ const customFields = {
 };
 
 const verifyCallback = (username, password, done) => {
-    connection.query('SELECT * FROM users WHERE username = ?', [username], function(error, results, fields) {
-        if (error) 
-            return done(error);
-        if (results.length == 0)
+    console.log('Login attempt:', username);
+    
+    // Use the app.locals.db which handles both real and mock database
+    const db = app.locals.db;
+    
+    // Check if we're using mock database (has mockUsers property)
+    if (db && db.mockUsers) {
+        console.log('Using mock database authentication');
+        console.log('Available users in mock DB:', db.mockUsers.map(u => u.username));
+        
+        const user = db.mockUsers.find(u => u.username === username);
+        if (!user) {
+            console.log('User not found in mock database:', username);
             return done(null, false);
+        }
         
-        const isValid = validPassword(password, results[0].password_hash);
-        const user = {
-            id: results[0].id,
-            username: results[0].username,
-            email: results[0].email,
-            role: results[0].role,
-            password_hash: results[0].password_hash
-        };
+        console.log('User found in mock database:', user.username, 'Role:', user.role);
+        const isValid = validPassword(password, user.password_hash);
+        console.log('Password valid:', isValid);
+        console.log('Expected hash:', user.password_hash);
+        console.log('Provided hash:', crypto.createHash('sha256').update(password).digest('hex'));
         
-        if (isValid)
+        if (isValid) {
+            console.log('Login successful for:', username);
             return done(null, user);
-        else
+        } else {
+            console.log('Invalid password for:', username);
             return done(null, false);
-    });
+        }
+    } else if (db && db.query && !db.mockUsers) {
+        // Real database authentication
+        db.query('SELECT * FROM users WHERE username = ?', [username], function(error, results, fields) {
+            if (error) {
+                console.log('Database error:', error);
+                return done(error);
+            }
+            if (results.length == 0) {
+                console.log('User not found:', username);
+                return done(null, false);
+            }
+            
+            console.log('User found:', results[0].username, 'Role:', results[0].role);
+            const isValid = validPassword(password, results[0].password_hash);
+            console.log('Password valid:', isValid);
+            
+            const user = {
+                id: results[0].id,
+                username: results[0].username,
+                email: results[0].email,
+                role: results[0].role,
+                password_hash: results[0].password_hash
+            };
+            
+            if (isValid) {
+                console.log('Login successful for:', username);
+                return done(null, user);
+            } else {
+                console.log('Invalid password for:', username);
+                return done(null, false);
+            }
+        });
+    } else {
+        console.log('No database available');
+        return done(null, false);
+    }
 }
 
 const strategy = new LocalStrategy(customFields, verifyCallback);
@@ -126,10 +225,30 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(function(userId, done) {
-    connection.query('SELECT * FROM users WHERE id = ?', [userId], function(error, results) {
-        if (error) return done(error);
-        done(null, results[0]);    
-    });
+    const db = app.locals.db;
+    
+    // Check if we're using mock database
+    if (db && db.mockUsers) {
+        console.log('Using mock user deserialization for userId:', userId);
+        
+        const user = db.mockUsers.find(u => u.id === parseInt(userId));
+        if (user) {
+            console.log('Mock user deserialized:', user.username);
+            done(null, user);
+        } else {
+            console.log('Mock user not found for ID:', userId);
+            done(null, false);
+        }
+    } else if (db && db.query && !db.mockUsers) {
+        // Real database deserialization
+        db.query('SELECT * FROM users WHERE id = ?', [userId], function(error, results) {
+            if (error) return done(error);
+            done(null, results[0]);    
+        });
+    } else {
+        console.log('No database available for deserialization');
+        done(null, false);
+    }
 });
 
 // Helper functions
@@ -143,6 +262,14 @@ function genPassword(password) {
 
 // Ensure default admin and test users exist with known passwords
 function ensureDefaultUsers() {
+    const db = app.locals.db;
+    
+    // Skip user creation if using mock database
+    if (!db || db.query.toString().includes('Mock DB Query')) {
+        console.log('Using mock database - default users are hardcoded in authentication');
+        return;
+    }
+    
     const adminUsername = 'admin';
     const adminEmail = 'admin@techcorp.com';
     const adminPasswordHash = genPassword('admin123');
@@ -152,19 +279,19 @@ function ensureDefaultUsers() {
     const testPasswordHash = genPassword('hello');
 
     // Upsert Admin
-    connection.query('SELECT id FROM users WHERE username = ?', [adminUsername], (err, results) => {
+    db.query('SELECT id FROM users WHERE username = ?', [adminUsername], (err, results) => {
         if (err) {
             console.error('Admin select error:', err);
             return;
         }
         if (results.length === 0) {
-            connection.query(
+            db.query(
                 'INSERT INTO users (username, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, NOW())',
                 [adminUsername, adminEmail, adminPasswordHash, 'admin'],
                 (insErr) => { if (insErr) console.error('Admin insert error:', insErr); }
             );
         } else {
-            connection.query(
+            db.query(
                 'UPDATE users SET password_hash = ?, role = ? WHERE username = ?',[adminPasswordHash, 'admin', adminUsername],
                 (updErr) => { if (updErr) console.error('Admin update error:', updErr); }
             );
@@ -172,19 +299,19 @@ function ensureDefaultUsers() {
     });
 
     // Upsert Test User
-    connection.query('SELECT id FROM users WHERE username = ?', [testUsername], (err, results) => {
+    db.query('SELECT id FROM users WHERE username = ?', [testUsername], (err, results) => {
         if (err) {
             console.error('Test user select error:', err);
             return;
         }
         if (results.length === 0) {
-            connection.query(
+            db.query(
                 'INSERT INTO users (username, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, NOW())',
                 [testUsername, testEmail, testPasswordHash, 'registered'],
                 (insErr) => { if (insErr) console.error('Test user insert error:', insErr); }
             );
         } else {
-            connection.query(
+            db.query(
                 'UPDATE users SET password_hash = ?, role = ? WHERE username = ?',[testPasswordHash, 'registered', testUsername],
                 (updErr) => { if (updErr) console.error('Test user update error:', updErr); }
             );
@@ -216,13 +343,25 @@ function isRegistered(req, res, next) {
 
 // Make middleware and locals available globally
 app.use((req, res, next) => {
-    res.locals.isAuth = req.isAuthenticated();
-    res.locals.user = req.user || null;
-    res.locals.isAdmin = req.isAuthenticated() && req.user && req.user.role === 'admin';
-    res.locals.isRegistered = req.isAuthenticated() && req.user && (req.user.role === 'registered' || req.user.role === 'admin');
+    const isAuth = req.isAuthenticated();
+    const user = req.user || null;
+    
+    // Debug logging for session state
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    console.log(`  - Session ID: ${req.sessionID}`);
+    console.log(`  - Is Authenticated: ${isAuth}`);
+    console.log(`  - User: ${user ? JSON.stringify(user) : 'null'}`);
+    
+    res.locals.isAuth = isAuth;
+    res.locals.user = user;
+    res.locals.isAdmin = isAuth && user && user.role === 'admin';
+    res.locals.isRegistered = isAuth && user && (user.role === 'registered' || user.role === 'admin');
     // currentPath is relative to the mounted base path (for active nav logic)
     res.locals.currentPath = req.path;
     res.locals.basePath = BASE_PATH || '';
+    
+    console.log(`  - Locals: isAuth=${res.locals.isAuth}, isAdmin=${res.locals.isAdmin}, user=${res.locals.user ? res.locals.user.username : 'null'}`);
+    
     next();
 });
 
@@ -290,6 +429,7 @@ router.get('/register', (req, res) => {
 
 router.post('/register', (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
+    const db = req.app.locals.db;
     
     // Validation
     if (!username || !email || !password || !confirmPassword) {
@@ -301,7 +441,7 @@ router.post('/register', (req, res) => {
     }
     
     // Check if user exists
-    connection.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, email], (error, results) => {
+    db.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, email], (error, results) => {
         if (error) {
             console.log("Database error:", error);
             return res.redirect('/register?error=Database error');
@@ -315,12 +455,13 @@ router.post('/register', (req, res) => {
         const passwordHash = genPassword(password);
         const insertQuery = 'INSERT INTO users (username, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, NOW())';
         
-        connection.query(insertQuery, [username, email, passwordHash, 'registered'], (error, results) => {
+        db.query(insertQuery, [username, email, passwordHash, 'registered'], (error, results) => {
             if (error) {
                 console.log("Insert error:", error);
                 return res.redirect('/register?error=Registration failed');
             }
             
+            console.log('New user registered:', username, 'with role: registered');
             res.redirect('/login?success=Registration successful');
         });
     });
@@ -333,7 +474,7 @@ router.post('/login', passport.authenticate('local', {
 
 router.get('/logout', (req, res) => {
     req.session.destroy((err) => {
-        res.clearCookie('session_cookie_name');
+        res.clearCookie('techcorp.session');
         res.redirect('/');
     });
 });

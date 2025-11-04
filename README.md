@@ -46,6 +46,45 @@ See also:
 - Deployment guide: `docs/deploy-linux.md`
 - Production env template: `.env.production.example`
 
+## IHUTSC Server Deployment
+
+**Student:** Nabil Salama Rezk Mikhael  
+**Server:** 143.47.98.96:4206  
+**Route:** /app206  
+
+### Quick Deployment Steps:
+
+1. **Test connection:**
+   ```powershell
+   .\test-connection.ps1
+   ```
+
+2. **Upload to server:**
+   ```powershell
+   .\upload-to-ihutsc.ps1
+   ```
+
+3. **Connect and deploy:**
+   ```bash
+   ssh student206@143.47.98.96
+   cd ~/exercise
+   chmod +x deploy-ihutsc-full.sh
+   ./deploy-ihutsc-full.sh
+   ```
+
+4. **Access application:**
+   - URL: http://143.47.98.96:4206/app206
+   - Health: http://143.47.98.96:4206/app206/health
+   - Admin: admin / admin123
+
+### Management Commands:
+```bash
+pm2 status          # Check status
+pm2 logs app206     # View logs  
+pm2 restart app206  # Restart app
+pm2 stop app206     # Stop app
+```
+
 ## Project work + GitHub
 - Make >=5 commits showing progress.
 - Use GitHub Projects/Issues to attribute tasks per member.
