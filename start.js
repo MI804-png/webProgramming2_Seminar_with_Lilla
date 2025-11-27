@@ -319,26 +319,32 @@ function ensureDefaultUsers() {
     });
 }
 
+// Helper function for redirects with BASE_PATH
+function redirectTo(res, path) {
+    const fullPath = BASE_PATH ? BASE_PATH + path : path;
+    res.redirect(fullPath);
+}
+
 // Middleware functions
 function isAuth(req, res, next) {
     if (req.isAuthenticated())
         next();
     else
-        res.redirect('/login?error=unauthorized');
+        redirectTo(res, '/login?error=unauthorized');
 }
 
 function isAdmin(req, res, next) {
     if (req.isAuthenticated() && req.user.role === 'admin')
         next();
     else
-        res.redirect('/login?error=admin_required');   
+        redirectTo(res, '/login?error=admin_required');   
 }
 
 function isRegistered(req, res, next) {
     if (req.isAuthenticated() && (req.user.role === 'registered' || req.user.role === 'admin'))
         next();
     else
-        res.redirect('/login?error=registration_required');   
+        redirectTo(res, '/login?error=registration_required');   
 }
 
 // Make middleware and locals available globally
@@ -433,22 +439,22 @@ router.post('/register', (req, res) => {
     
     // Validation
     if (!username || !email || !password || !confirmPassword) {
-        return res.redirect('/register?error=All fields are required');
+        return redirectTo(res, '/register?error=All fields are required');
     }
     
     if (password !== confirmPassword) {
-        return res.redirect('/register?error=Passwords do not match');
+        return redirectTo(res, '/register?error=Passwords do not match');
     }
     
     // Check if user exists
     db.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, email], (error, results) => {
         if (error) {
             console.log("Database error:", error);
-            return res.redirect('/register?error=Database error');
+            return redirectTo(res, '/register?error=Database error');
         }
         
         if (results.length > 0) {
-            return res.redirect('/register?error=Username or email already exists');
+            return redirectTo(res, '/register?error=Username or email already exists');
         }
         
         // Create new user
@@ -458,24 +464,30 @@ router.post('/register', (req, res) => {
         db.query(insertQuery, [username, email, passwordHash, 'registered'], (error, results) => {
             if (error) {
                 console.log("Insert error:", error);
-                return res.redirect('/register?error=Registration failed');
+                return redirectTo(res, '/register?error=Registration failed');
             }
             
             console.log('New user registered:', username, 'with role: registered');
-            res.redirect('/login?success=Registration successful');
+            redirectTo(res, '/login?success=Registration successful');
         });
     });
 });
 
-router.post('/login', passport.authenticate('local', {
-    failureRedirect: '/login?error=invalid',
-    successRedirect: '/'
-}));
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) { return next(err); }
+        if (!user) { return redirectTo(res, '/login?error=invalid'); }
+        req.logIn(user, (err) => {
+            if (err) { return next(err); }
+            return redirectTo(res, '/');
+        });
+    })(req, res, next);
+});
 
 router.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         res.clearCookie('techcorp.session');
-        res.redirect('/');
+        redirectTo(res, '/');
     });
 });
 

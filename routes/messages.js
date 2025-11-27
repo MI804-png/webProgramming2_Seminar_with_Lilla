@@ -1,11 +1,18 @@
 const express = require('express');
 const router = express.Router();
 
+// Helper function for redirects with BASE_PATH
+function redirectTo(res, path) {
+    const BASE_PATH = process.env.BASE_PATH || '';
+    const fullPath = BASE_PATH ? BASE_PATH + path : path;
+    res.redirect(fullPath);
+}
+
 // Messages menu - display contact messages (registered users only)
 router.get('/', (req, res) => {
     // Check if user is registered or admin
     if (!req.isAuthenticated() || (req.user.role !== 'registered' && req.user.role !== 'admin')) {
-        return res.redirect('/login?error=registration_required');
+        return redirectTo(res, '/login?error=registration_required');
     }
     
     const db = req.app.locals.db;
@@ -33,7 +40,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     // Check if user is registered or admin
     if (!req.isAuthenticated() || (req.user.role !== 'registered' && req.user.role !== 'admin')) {
-        return res.redirect('/login?error=registration_required');
+        return redirectTo(res, '/login?error=registration_required');
     }
     
     const messageId = req.params.id;

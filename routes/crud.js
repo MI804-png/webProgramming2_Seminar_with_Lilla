@@ -1,13 +1,20 @@
 const express = require('express');
 const router = express.Router();
 
+// Helper function for redirects with BASE_PATH
+function redirectTo(res, path) {
+    const BASE_PATH = process.env.BASE_PATH || '';
+    const fullPath = BASE_PATH ? BASE_PATH + path : path;
+    res.redirect(fullPath);
+}
+
 // CRUD operations for products table (Admin only)
 
 // List all products with CRUD operations
 router.get('/', (req, res) => {
     // Check if user is admin
     if (!req.isAuthenticated() || req.user.role !== 'admin') {
-        return res.redirect('/login?error=admin_required');
+        return redirectTo(res, '/login?error=admin_required');
     }
     
     const db = req.app.locals.db;
@@ -42,7 +49,7 @@ router.get('/', (req, res) => {
 router.get('/add', (req, res) => {
     // Check if user is admin
     if (!req.isAuthenticated() || req.user.role !== 'admin') {
-        return res.redirect('/login?error=admin_required');
+        return redirectTo(res, '/login?error=admin_required');
     }
     
     const db = req.app.locals.db;
@@ -71,7 +78,7 @@ router.get('/add', (req, res) => {
 router.get('/edit/:id', (req, res) => {
     // Check if user is admin
     if (!req.isAuthenticated() || req.user.role !== 'admin') {
-        return res.redirect('/login?error=admin_required');
+        return redirectTo(res, '/login?error=admin_required');
     }
     
     const productId = req.params.id;
@@ -132,7 +139,7 @@ router.post('/add', (req, res) => {
     
     // Validation
     if (!name || !description) {
-        return res.redirect('/crud/add?error=Name and description are required');
+        return redirectTo(res, '/crud/add?error=Name and description are required');
     }
     
     const insertQuery = `
@@ -152,10 +159,10 @@ router.post('/add', (req, res) => {
     db.query(insertQuery, values, (error, results) => {
         if (error) {
             console.error('Product insert error:', error);
-            return res.redirect('/crud/add?error=Failed to create product');
+            return redirectTo(res, '/crud/add?error=Failed to create product');
         }
         
-        res.redirect('/crud?success=Product created successfully');
+        redirectTo(res, '/crud?success=Product created successfully');
     });
 });
 
@@ -172,7 +179,7 @@ router.post('/edit/:id', (req, res) => {
     
     // Validation
     if (!name || !description) {
-        return res.redirect(`/crud/edit/${productId}?error=Name and description are required`);
+        return redirectTo(res, `/crud/edit/${productId}?error=Name and description are required`);
     }
     
     const updateQuery = `
@@ -194,14 +201,14 @@ router.post('/edit/:id', (req, res) => {
     db.query(updateQuery, values, (error, results) => {
         if (error) {
             console.error('Product update error:', error);
-            return res.redirect(`/crud/edit/${productId}?error=Failed to update product`);
+            return redirectTo(res, `/crud/edit/${productId}?error=Failed to update product`);
         }
         
         if (results.affectedRows === 0) {
-            return res.redirect(`/crud/edit/${productId}?error=Product not found`);
+            return redirectTo(res, `/crud/edit/${productId}?error=Product not found`);
         }
         
-        res.redirect('/crud?success=Product updated successfully');
+        redirectTo(res, '/crud?success=Product updated successfully');
     });
 });
 
@@ -218,14 +225,14 @@ router.post('/delete/:id', (req, res) => {
     db.query('DELETE FROM products WHERE id = ?', [productId], (error, results) => {
         if (error) {
             console.error('Product delete error:', error);
-            return res.redirect('/crud?error=Failed to delete product');
+            return redirectTo(res, '/crud?error=Failed to delete product');
         }
         
         if (results.affectedRows === 0) {
-            return res.redirect('/crud?error=Product not found');
+            return redirectTo(res, '/crud?error=Product not found');
         }
         
-        res.redirect('/crud?success=Product deleted successfully');
+        redirectTo(res, '/crud?success=Product deleted successfully');
     });
 });
 
@@ -233,7 +240,7 @@ router.post('/delete/:id', (req, res) => {
 router.get('/view/:id', (req, res) => {
     // Check if user is admin
     if (!req.isAuthenticated() || req.user.role !== 'admin') {
-        return res.redirect('/login?error=admin_required');
+        return redirectTo(res, '/login?error=admin_required');
     }
     
     const productId = req.params.id;

@@ -1,6 +1,13 @@
 const express = require('express');
 const router = express.Router();
 
+// Helper function for redirects with BASE_PATH
+function redirectTo(res, path) {
+    const BASE_PATH = process.env.BASE_PATH || '';
+    const fullPath = BASE_PATH ? BASE_PATH + path : path;
+    res.redirect(fullPath);
+}
+
 // Contact form routes
 router.get('/', (req, res) => {
     res.render('contact', {
@@ -16,13 +23,13 @@ router.post('/', (req, res) => {
     
     // Validation
     if (!name || !email || !message) {
-        return res.redirect('/contact?error=Name, email, and message are required');
+        return redirectTo(res, '/contact?error=Name, email, and message are required');
     }
     
     // Email validation (simple)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        return res.redirect('/contact?error=Please enter a valid email address');
+        return redirectTo(res, '/contact?error=Please enter a valid email address');
     }
     
     // Insert message into database
@@ -31,7 +38,7 @@ router.post('/', (req, res) => {
     db.query(insertQuery, [name, email, subject || 'General Inquiry', message], (error, results) => {
         if (error) {
             console.error('Contact message insert error:', error);
-            return res.redirect('/contact?error=Failed to send message. Please try again.');
+            return redirectTo(res, '/contact?error=Failed to send message. Please try again.');
         }
         
         console.log('New contact message saved:', {
@@ -41,7 +48,7 @@ router.post('/', (req, res) => {
             subject: subject || 'General Inquiry'
         });
         
-        res.redirect('/contact?success=Thank you for your message! We will get back to you soon.');
+        redirectTo(res, '/contact?success=Thank you for your message! We will get back to you soon.');
     });
 });
 
