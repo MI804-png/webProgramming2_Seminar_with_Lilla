@@ -234,7 +234,7 @@ function deleteProduct(productId, productName) {
         // Create a form and submit it
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/crud/delete/${productId}`;
+        form.action = `<%= basePath %>/crud/delete/${productId}`;
         document.body.appendChild(form);
         form.submit();
     }
