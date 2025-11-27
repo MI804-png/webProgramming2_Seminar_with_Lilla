@@ -164,7 +164,8 @@ connection.connect((err) => {
                         callback(null, message ? [message] : []);
                     }
                     // PRODUCTS CRUD
-                    else if (sql.includes('SELECT p.*, c.name as category_name FROM products')) {
+                    else if (sql.includes('SELECT p.*, c.name as category_name FROM products') || 
+                             (sql.includes('SELECT p.*, c.name as category_name') && sql.includes('FROM products'))) {
                         const results = mockProducts.map(p => ({
                             ...p,
                             category_name: mockCategories.find(c => c.id === p.category_id)?.name || null
@@ -185,6 +186,13 @@ connection.connect((err) => {
                             category_id: category_id ? parseInt(category_id) : null, 
                             image_url, 
                             status: status || 'active', 
+                            created_at: new Date(), 
+                            updated_at: new Date() 
+                        };
+                        mockProducts.push(newProduct);
+                        console.log('✓ Mock DB: Product created:', name, 'ID:', newProduct.id);
+                        callback(null, { insertId: newProduct.id });
+                    }
                     else if (sql.includes('UPDATE products')) {
                         const productId = params[params.length - 1];
                         const idx = mockProducts.findIndex(p => p.id === parseInt(productId));
@@ -204,13 +212,6 @@ connection.connect((err) => {
                             callback(null, { affectedRows: 1, changedRows: 1 });
                         } else {
                             callback(null, { affectedRows: 0, changedRows: 0 });
-                        }
-                    }       const [name, description, price, category_id, image_url, status] = params;
-                            mockProducts[idx] = { ...mockProducts[idx], name, description, price, category_id, image_url, status, updated_at: new Date() };
-                            console.log('✓ Mock DB: Product updated:', name);
-                            callback(null, { affectedRows: 1 });
-                        } else {
-                            callback(null, { affectedRows: 0 });
                         }
                     }
                     else if (sql.includes('DELETE FROM products WHERE id = ?')) {
