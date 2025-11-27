@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Message - TechCorp Solutions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5/dist/lux/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <%- include('layout', { title: 'Edit Message', currentPath: '/messages' }) %>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0"><i class="fas fa-edit"></i> Edit Message</h4>
+                    </div>
+                    <div class="card-body">
+                        <% if (locals.error) { %>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle"></i> <%= error %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <% } %>
+
+                        <form method="POST" action="<%= basePath %>/messages/<%= message.id %>/edit">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">From:</label>
+                                <input type="text" class="form-control" value="<%= message.name %> (<%= message.email %>)" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Received:</label>
+                                <input type="text" class="form-control" value="<%= new Date(message.created_at).toLocaleString() %>" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="subject" class="form-label fw-bold">Subject:</label>
+                                <input type="text" class="form-control" id="subject" name="subject" value="<%= message.subject %>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="message" class="form-label fw-bold">Message:</label>
+                                <textarea class="form-control" id="message" name="message" rows="8" required><%= message.message %></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="status" class="form-label fw-bold">Status:</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="new" <%= message.status === 'new' ? 'selected' : '' %>>New</option>
+                                    <option value="read" <%= message.status === 'read' ? 'selected' : '' %>>Read</option>
+                                    <option value="replied" <%= message.status === 'replied' ? 'selected' : '' %>>Replied</option>
+                                    <option value="archived" <%= message.status === 'archived' ? 'selected' : '' %>>Archived</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="<%= basePath %>/messages" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to Messages
+                                </a>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

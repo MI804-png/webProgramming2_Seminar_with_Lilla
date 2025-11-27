@@ -110,4 +110,150 @@ router.post('/:id/status', (req, res) => {
     });
 });
 
+// Show edit message form (admin only)
+router.get('/:id/edit', (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return redirectTo(res, '/login?error=admin_required');
+    }
+    
+    const messageId = req.params.id;
+    const db = req.app.locals.db;
+    
+    db.query('SELECT * FROM contact_messages WHERE id = ?', [messageId], (error, results) => {
+        if (error) {
+            console.error('Message query error:', error);
+            return res.status(500).render('error', {
+                title: 'Database Error',
+                message: 'Unable to fetch message'
+            });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).render('error', {
+                title: 'Message Not Found',
+                message: 'The requested message was not found'
+            });
+        }
+        
+        res.render('message_edit', {
+            title: 'Edit Message - TechCorp Solutions',
+            message: results[0],
+            error: req.query.error || ''
+        });
+    });
+});
+
+// Update message (admin only)
+router.post('/:id/edit', (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    const messageId = req.params.id;
+    const { subject, message, status } = req.body;
+    const db = req.app.locals.db;
+    
+    if (!subject || !message) {
+        return redirectTo(res, `/messages/${messageId}/edit?error=All fields are required`);
+    }
+    
+    const updateQuery = 'UPDATE contact_messages SET subject = ?, message = ?, status = ? WHERE id = ?';
+    
+    db.query(updateQuery, [subject, message, status || 'new', messageId], (error, results) => {
+        if (error) {
+            console.error('Message update error:', error);
+            return redirectTo(res, `/messages/${messageId}/edit?error=Failed to update message`);
+        }
+        
+        if (results.affectedRows === 0) {
+            return redirectTo(res, `/messages/${messageId}/edit?error=Message not found`);
+        }
+        
+        redirectTo(res, '/messages?success=Message updated successfully');
+    });
+});
+
+// Delete message (admin only)
+router.post('/:id/delete', (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    const messageId = req.params.id;
+    const db = req.app.locals.db;
+    
+    db.query('DELETE FROM contact_messages WHERE id = ?', [messageId], (error, results) => {
+        if (error) {
+            console.error('Message delete error:', error);
+            return redirectTo(res, '/messages?error=Failed to delete message');
+        }
+        
+        if (results.affectedRows === 0) {
+            return redirectTo(res, '/messages?error=Message not found');
+        }
+        
+        redirectTo(res, '/messages?success=Message deleted successfully');
+    });
+});
+
+// Show reply form (admin only)
+router.get('/:id/reply', (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return redirectTo(res, '/login?error=admin_required');
+    }
+    
+    const messageId = req.params.id;
+    const db = req.app.locals.db;
+    
+    db.query('SELECT * FROM contact_messages WHERE id = ?', [messageId], (error, results) => {
+        if (error) {
+            console.error('Message query error:', error);
+            return res.status(500).render('error', {
+                title: 'Database Error',
+                message: 'Unable to fetch message'
+            });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).render('error', {
+                title: 'Message Not Found',
+                message: 'The requested message was not found'
+            });
+        }
+        
+        res.render('message_reply', {
+            title: 'Reply to Message - TechCorp Solutions',
+            message: results[0],
+            error: req.query.error || ''
+        });
+    });
+});
+
+// Send reply (admin only)
+router.post('/:id/reply', (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    const messageId = req.params.id;
+    const { reply_subject, reply_message, mark_replied } = req.body;
+    const db = req.app.locals.db;
+    
+    if (!reply_subject || !reply_message) {
+        return redirectTo(res, `/messages/${messageId}/reply?error=All fields are required`);
+    }
+    
+    // In a production system, this would send an email
+    // For now, just update the status if requested
+    if (mark_replied) {
+        db.query('UPDATE contact_messages SET status = ? WHERE id = ?', ['replied', messageId], (error) => {
+            if (error) {
+                console.error('Status update error:', error);
+            }
+        });
+    }
+    
+    redirectTo(res, '/messages?success=Reply sent successfully (demonstration mode)');
+});
+
 module.exports = router;

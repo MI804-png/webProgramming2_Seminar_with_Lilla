@@ -66,13 +66,17 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="card-title mb-1">
                                     <i class="fas fa-user"></i> <%= message.name %>
-                                    <% 
+                                    <%
                                     let statusClass = 'secondary';
-                                    if (message.status === 'new') statusClass = 'success';
-                                    else if (message.status === 'read') statusClass = 'primary';
-                                    else if (message.status === 'replied') statusClass = 'info';
+                                    let statusText = 'PENDING';
+                                    if (message.status) {
+                                        if (message.status === 'new') { statusClass = 'success'; statusText = 'NEW'; }
+                                        else if (message.status === 'read') { statusClass = 'primary'; statusText = 'READ'; }
+                                        else if (message.status === 'replied') { statusClass = 'info'; statusText = 'REPLIED'; }
+                                        else { statusClass = 'secondary'; statusText = message.status.toUpperCase(); }
+                                    }
                                     %>
-                                    <span class="badge bg-<%= statusClass %> ms-2"><%= message.status.toUpperCase() %></span>
+                                    <span class="badge bg-<%= statusClass %> ms-2"><%= statusText %></span>
                                 </h5>
                             </div>
                             
@@ -108,22 +112,37 @@
                                 </a>
                                 
                                 <% if (locals.isAdmin) { %>
+                                <a href="<%= basePath %>/messages/<%= message.id %>/reply" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-reply"></i> Reply
+                                </a>
+                                
+                                <a href="<%= basePath %>/messages/<%= message.id %>/edit" class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                                         <i class="fas fa-cog"></i> Status
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" onclick="updateMessageStatus(<%= message.id %>, 'new')">
+                                        <li><a class="dropdown-item" href="#" onclick="updateMessageStatus('<%= message.id %>', 'new'); return false;">
                                             <i class="fas fa-star text-success"></i> Mark as New
                                         </a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="updateMessageStatus(<%= message.id %>, 'read')">
+                                        <li><a class="dropdown-item" href="#" onclick="updateMessageStatus('<%= message.id %>', 'read'); return false;">
                                             <i class="fas fa-eye text-primary"></i> Mark as Read
                                         </a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="updateMessageStatus(<%= message.id %>, 'replied')">
+                                        <li><a class="dropdown-item" href="#" onclick="updateMessageStatus('<%= message.id %>', 'replied'); return false;">
                                             <i class="fas fa-reply text-info"></i> Mark as Replied
                                         </a></li>
                                     </ul>
                                 </div>
+                                
+                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                        data-message-id="<%= message.id %>" 
+                                        data-message-subject="<%= message.subject %>"
+                                        onclick="confirmDeleteMessage(this)">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
                                 <% } %>
                             </div>
                         </div>
@@ -144,6 +163,69 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<% if (locals.isAdmin) { %>
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the message "<strong id="messageSubject"></strong>"?</p>
+                <p class="text-danger mb-0"><i class="fas fa-warning"></i> This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>
+
+<% if (locals.isAdmin) { %>
+<script>
+// Update message status (Admin only)
+function updateMessageStatus(messageId, status) {
+    const basePath = '<%= basePath %>';
+    fetch(basePath + '/messages/' + messageId + '/status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to update status: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status.');
+    });
+}
+
+// Delete message confirmation
+function confirmDeleteMessage(button) {
+    const messageId = button.getAttribute('data-message-id');
+    const messageSubject = button.getAttribute('data-message-subject');
+    document.getElementById('messageSubject').textContent = messageSubject;
+    document.getElementById('deleteForm').action = '<%= basePath %>/messages/' + messageId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+<% } %>
 
 <script>
 // Search functionality
@@ -175,29 +257,4 @@ document.getElementById('filterStatus').addEventListener('change', function() {
         }
     });
 });
-
-// Update message status (Admin only)
-<% if (locals.isAdmin) { %>
-function updateMessageStatus(messageId, status) {
-    fetch(`/messages/${messageId}/status`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: status })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload(); // Reload to show updated status
-        } else {
-            alert('Failed to update status: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while updating the status.');
-    });
-}
-<% } %>
 </script>

@@ -17,6 +17,7 @@ const databaseRoutes = require('./routes/database');
 const contactRoutes = require('./routes/contact');
 const messagesRoutes = require('./routes/messages');
 const crudRoutes = require('./routes/crud');
+const projectsRoutes = require('./routes/projects');
 
 // Environment configuration
 const DB_HOST = process.env.DB_HOST || 'localhost';
@@ -115,7 +116,8 @@ connection.connect((err) => {
         const mockCounters = {
             nextUserId: 3,
             nextProductId: 4,
-            nextMessageId: 3
+            nextMessageId: 3,
+            nextProjectId: 3
         };
         
         app.locals.db = {
@@ -162,6 +164,39 @@ connection.connect((err) => {
                     else if (sql.includes('SELECT * FROM contact_messages WHERE id = ?')) {
                         const message = mockMessages.find(m => m.id === parseInt(params[0]));
                         callback(null, message ? [message] : []);
+                    }
+                    else if (sql.includes('UPDATE contact_messages SET status = ? WHERE id = ?')) {
+                        const [status, messageId] = params;
+                        const idx = mockMessages.findIndex(m => m.id === parseInt(messageId));
+                        if (idx >= 0) {
+                            mockMessages[idx].status = status;
+                            console.log('✓ Mock DB: Message status updated:', messageId, status);
+                            callback(null, { affectedRows: 1 });
+                        } else {
+                            callback(null, { affectedRows: 0 });
+                        }
+                    }
+                    else if (sql.includes('UPDATE contact_messages SET name = ?')) {
+                        const messageId = params[params.length - 1];
+                        const idx = mockMessages.findIndex(m => m.id === parseInt(messageId));
+                        if (idx >= 0) {
+                            const [name, email, subject, message, status] = params;
+                            mockMessages[idx] = { ...mockMessages[idx], name, email, subject, message, status };
+                            console.log('✓ Mock DB: Message updated:', messageId);
+                            callback(null, { affectedRows: 1 });
+                        } else {
+                            callback(null, { affectedRows: 0 });
+                        }
+                    }
+                    else if (sql.includes('DELETE FROM contact_messages WHERE id = ?')) {
+                        const idx = mockMessages.findIndex(m => m.id === parseInt(params[0]));
+                        if (idx >= 0) {
+                            const deleted = mockMessages.splice(idx, 1)[0];
+                            console.log('✓ Mock DB: Message deleted:', deleted.name);
+                            callback(null, { affectedRows: 1 });
+                        } else {
+                            callback(null, { affectedRows: 0 });
+                        }
                     }
                     // PRODUCTS CRUD
                     else if (sql.includes('SELECT p.*, c.name as category_name FROM products') || 
@@ -229,8 +264,56 @@ connection.connect((err) => {
                         callback(null, mockCategories);
                     }
                     // PROJECTS
+                    else if (sql.includes('SELECT * FROM projects WHERE id = ?')) {
+                        const project = mockProjects.find(p => p.id === parseInt(params[0]));
+                        callback(null, project ? [project] : []);
+                    }
                     else if (sql.includes('SELECT * FROM projects')) {
-                        callback(null, mockProjects);
+                        callback(null, [...mockProjects].sort((a, b) => b.created_at - a.created_at));
+                    }
+                    else if (sql.includes('INSERT INTO projects')) {
+                        const [name, description, status, start_date, end_date] = params;
+                        const newProject = {
+                            id: mockCounters.nextProjectId++,
+                            name,
+                            description,
+                            status: status || 'planning',
+                            start_date,
+                            end_date,
+                            created_at: new Date()
+                        };
+                        mockProjects.push(newProject);
+                        console.log('✓ Mock DB: Project created:', name);
+                        callback(null, { insertId: newProject.id });
+                    }
+                    else if (sql.includes('UPDATE projects')) {
+                        const projectId = params[params.length - 1];
+                        const idx = mockProjects.findIndex(p => p.id === parseInt(projectId));
+                        if (idx >= 0) {
+                            const [name, description, status, start_date, end_date] = params;
+                            mockProjects[idx] = {
+                                ...mockProjects[idx],
+                                name,
+                                description,
+                                status: status || 'planning',
+                                start_date,
+                                end_date
+                            };
+                            console.log('✓ Mock DB: Project updated:', name);
+                            callback(null, { affectedRows: 1 });
+                        } else {
+                            callback(null, { affectedRows: 0 });
+                        }
+                    }
+                    else if (sql.includes('DELETE FROM projects WHERE id = ?')) {
+                        const idx = mockProjects.findIndex(p => p.id === parseInt(params[0]));
+                        if (idx >= 0) {
+                            const deleted = mockProjects.splice(idx, 1)[0];
+                            console.log('✓ Mock DB: Project deleted:', deleted.name);
+                            callback(null, { affectedRows: 1 });
+                        } else {
+                            callback(null, { affectedRows: 0 });
+                        }
                     }
                     // HEALTH CHECK
                     else if (sql.includes('SELECT 1 AS ok')) {
@@ -506,6 +589,7 @@ router.use('/database', databaseRoutes);
 router.use('/contact', contactRoutes);
 router.use('/messages', messagesRoutes);
 router.use('/crud', crudRoutes);
+router.use('/projects', projectsRoutes);
 
 // Authentication routes (keeping some in main file for compatibility)
 router.get('/login', (req, res) => {
