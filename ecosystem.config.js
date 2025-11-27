@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'app206',
-      script: 'start-homework-style.js',
+      script: 'start.js',
       instances: 1,
       autorestart: true,
       watch: false,
