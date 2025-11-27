@@ -107,17 +107,19 @@ connection.connect((err) => {
         ];
         
         const mockMessages = [
-            { id: 1, name: 'John Doe', email: 'john@example.com', subject: 'Web Development Inquiry', message: 'I need a custom e-commerce website for my business.', created_at: new Date('2025-11-20T10:30:00') },
-            { id: 2, name: 'Jane Smith', email: 'jane@example.com', subject: 'Mobile App Development', message: 'Looking for a mobile app developer for a fintech project.', created_at: new Date('2025-11-25T14:15:00') }
+            { id: 1, name: 'John Doe', email: 'john@example.com', subject: 'Web Development Inquiry', message: 'I need a custom e-commerce website for my business.', status: 'new', created_at: new Date('2025-11-20T10:30:00') },
+            { id: 2, name: 'Jane Smith', email: 'jane@example.com', subject: 'Mobile App Development', message: 'Looking for a mobile app developer for a fintech project.', status: 'read', created_at: new Date('2025-11-25T14:15:00') }
         ];
         
-        let nextUserId = 3;
-        let nextProductId = 4;
-        let nextMessageId = 3;
+        // Mutable counters stored in an object to maintain reference
+        const mockCounters = {
+            nextUserId: 3,
+            nextProductId: 4,
+            nextMessageId: 3
+        };
         
         app.locals.db = {
-            mockUsers, mockCategories, mockProducts, mockProjects, mockMessages,
-            nextUserId, nextProductId, nextMessageId,
+            mockUsers, mockCategories, mockProducts, mockProjects, mockMessages, mockCounters,
             query: (sql, params, callback) => {
                 if (typeof params === 'function') {
                     callback = params;
@@ -137,7 +139,7 @@ connection.connect((err) => {
                     }
                     else if (sql.includes('INSERT INTO users')) {
                         const [username, email, password_hash, role] = params;
-                        const newUser = { id: nextUserId++, username, email, password_hash, role, created_at: new Date() };
+                        const newUser = { id: mockCounters.nextUserId++, username, email, password_hash, role, created_at: new Date() };
                         mockUsers.push(newUser);
                         console.log('✓ Mock DB: User registered:', username);
                         callback(null, { insertId: newUser.id });
@@ -149,7 +151,7 @@ connection.connect((err) => {
                     // CONTACT MESSAGES
                     else if (sql.includes('INSERT INTO contact_messages')) {
                         const [name, email, subject, message] = params;
-                        const newMessage = { id: nextMessageId++, name, email, subject, message, created_at: new Date() };
+                        const newMessage = { id: mockCounters.nextMessageId++, name, email, subject, message, status: 'new', created_at: new Date() };
                         mockMessages.push(newMessage);
                         console.log('✓ Mock DB: Contact message saved from:', name);
                         callback(null, { insertId: newMessage.id });
@@ -176,18 +178,34 @@ connection.connect((err) => {
                     else if (sql.includes('INSERT INTO products')) {
                         const [name, description, price, category_id, image_url, status] = params;
                         const newProduct = { 
-                            id: nextProductId++, name, description, price, category_id, 
-                            image_url, status, created_at: new Date(), updated_at: new Date() 
-                        };
-                        mockProducts.push(newProduct);
-                        console.log('✓ Mock DB: Product created:', name);
-                        callback(null, { insertId: newProduct.id });
-                    }
+                            id: mockCounters.nextProductId++, 
+                            name, 
+                            description, 
+                            price: price ? parseFloat(price) : null, 
+                            category_id: category_id ? parseInt(category_id) : null, 
+                            image_url, 
+                            status: status || 'active', 
                     else if (sql.includes('UPDATE products')) {
                         const productId = params[params.length - 1];
                         const idx = mockProducts.findIndex(p => p.id === parseInt(productId));
                         if (idx >= 0) {
                             const [name, description, price, category_id, image_url, status] = params;
+                            mockProducts[idx] = { 
+                                ...mockProducts[idx], 
+                                name, 
+                                description, 
+                                price: price ? parseFloat(price) : null, 
+                                category_id: category_id ? parseInt(category_id) : null, 
+                                image_url, 
+                                status: status || 'active', 
+                                updated_at: new Date() 
+                            };
+                            console.log('✓ Mock DB: Product updated:', name, 'ID:', productId);
+                            callback(null, { affectedRows: 1, changedRows: 1 });
+                        } else {
+                            callback(null, { affectedRows: 0, changedRows: 0 });
+                        }
+                    }       const [name, description, price, category_id, image_url, status] = params;
                             mockProducts[idx] = { ...mockProducts[idx], name, description, price, category_id, image_url, status, updated_at: new Date() };
                             console.log('✓ Mock DB: Product updated:', name);
                             callback(null, { affectedRows: 1 });
