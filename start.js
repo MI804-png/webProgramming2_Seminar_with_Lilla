@@ -77,59 +77,149 @@ connection.connect((err) => {
         // Ensure default users exist for demo/login
         ensureDefaultUsers();
     } else {        console.log("Database Connection Failed:", err);
-        console.log("Application will run with limited functionality for demo purposes");
-          // Create mock database with in-memory storage
+        console.log("========================================");
+        console.log("APPLICATION RUNNING IN DEMO MODE");
+        console.log("Database connection failed - using in-memory mock data");
+        console.log("To enable full database functionality, contact your administrator");
+        console.log("========================================");
+        
+        // Create comprehensive mock database with in-memory storage
         const mockUsers = [
-            { id: 1, username: 'admin', email: 'admin@techcorp.com', password_hash: genPassword('admin123'), role: 'admin' },
-            { id: 2, username: 'testuser', email: 'test@techcorp.com', password_hash: genPassword('hello'), role: 'registered' }
+            { id: 1, username: 'admin', email: 'admin@techcorp.com', password_hash: genPassword('admin123'), role: 'admin', created_at: new Date('2025-01-01') },
+            { id: 2, username: 'testuser', email: 'test@techcorp.com', password_hash: genPassword('hello'), role: 'registered', created_at: new Date('2025-01-15') }
+        ];
+        
+        const mockCategories = [
+            { id: 1, name: 'Web Development', description: 'Custom web applications and websites', created_at: new Date('2025-01-01') },
+            { id: 2, name: 'Mobile Apps', description: 'iOS and Android applications', created_at: new Date('2025-01-01') },
+            { id: 3, name: 'Cloud Services', description: 'Cloud infrastructure and services', created_at: new Date('2025-01-01') }
+        ];
+        
+        const mockProducts = [
+            { id: 1, name: 'Enterprise Web Portal', description: 'Full-featured enterprise web application with advanced features', price: 15000, category_id: 1, image_url: 'https://via.placeholder.com/300x200?text=Enterprise+Portal', status: 'active', created_at: new Date('2025-01-10'), updated_at: new Date('2025-01-10') },
+            { id: 2, name: 'Mobile Banking App', description: 'Secure mobile banking application for iOS and Android', price: 25000, category_id: 2, image_url: 'https://via.placeholder.com/300x200?text=Banking+App', status: 'active', created_at: new Date('2025-01-15'), updated_at: new Date('2025-01-15') },
+            { id: 3, name: 'Cloud Storage Solution', description: 'Scalable cloud storage with advanced security', price: 8000, category_id: 3, image_url: 'https://via.placeholder.com/300x200?text=Cloud+Storage', status: 'active', created_at: new Date('2025-01-20'), updated_at: new Date('2025-01-20') }
+        ];
+        
+        const mockProjects = [
+            { id: 1, name: 'TechCorp Redesign', description: 'Complete website redesign project', status: 'completed', start_date: '2024-06-01', end_date: '2024-12-31', created_at: new Date('2024-06-01') },
+            { id: 2, name: 'Mobile App Development', description: 'Cross-platform mobile application', status: 'in_progress', start_date: '2025-01-15', end_date: null, created_at: new Date('2025-01-15') }
+        ];
+        
+        const mockMessages = [
+            { id: 1, name: 'John Doe', email: 'john@example.com', subject: 'Web Development Inquiry', message: 'I need a custom e-commerce website for my business.', created_at: new Date('2025-11-20T10:30:00') },
+            { id: 2, name: 'Jane Smith', email: 'jane@example.com', subject: 'Mobile App Development', message: 'Looking for a mobile app developer for a fintech project.', created_at: new Date('2025-11-25T14:15:00') }
         ];
         
         let nextUserId = 3;
+        let nextProductId = 4;
+        let nextMessageId = 3;
         
         app.locals.db = {
-            mockUsers: mockUsers, // Store reference to users array
-            nextUserId: nextUserId,
+            mockUsers, mockCategories, mockProducts, mockProjects, mockMessages,
+            nextUserId, nextProductId, nextMessageId,
             query: (sql, params, callback) => {
                 if (typeof params === 'function') {
                     callback = params;
                     params = [];
                 }
-                console.log("Mock DB Query:", sql, params);
+                console.log("Mock DB Query:", sql.substring(0, 100), params.length > 0 ? `[${params.length} params]` : '');
                 
                 try {
-                    // Handle user authentication queries
+                    // USER QUERIES
                     if (sql.includes('SELECT * FROM users WHERE username = ?')) {
                         const user = mockUsers.find(u => u.username === params[0]);
                         callback(null, user ? [user] : []);
                     }
-                    // Handle user existence check for registration
                     else if (sql.includes('SELECT * FROM users WHERE username = ? OR email = ?')) {
                         const user = mockUsers.find(u => u.username === params[0] || u.email === params[1]);
                         callback(null, user ? [user] : []);
                     }
-                    // Handle user registration
                     else if (sql.includes('INSERT INTO users')) {
                         const [username, email, password_hash, role] = params;
-                        const newUser = {
-                            id: nextUserId++,
-                            username,
-                            email,
-                            password_hash,
-                            role,
-                            created_at: new Date()
-                        };
+                        const newUser = { id: nextUserId++, username, email, password_hash, role, created_at: new Date() };
                         mockUsers.push(newUser);
-                        console.log('Mock DB: User registered successfully:', username);
-                        console.log('Mock DB: Current users:', mockUsers.map(u => u.username));
+                        console.log('✓ Mock DB: User registered:', username);
                         callback(null, { insertId: newUser.id });
                     }
-                    // Handle user selection by ID (for deserializeUser)
                     else if (sql.includes('SELECT * FROM users WHERE id = ?')) {
                         const user = mockUsers.find(u => u.id === parseInt(params[0]));
                         callback(null, user ? [user] : []);
                     }
+                    // CONTACT MESSAGES
+                    else if (sql.includes('INSERT INTO contact_messages')) {
+                        const [name, email, subject, message] = params;
+                        const newMessage = { id: nextMessageId++, name, email, subject, message, created_at: new Date() };
+                        mockMessages.push(newMessage);
+                        console.log('✓ Mock DB: Contact message saved from:', name);
+                        callback(null, { insertId: newMessage.id });
+                    }
+                    else if (sql.includes('SELECT * FROM contact_messages ORDER BY created_at DESC')) {
+                        callback(null, [...mockMessages].sort((a, b) => b.created_at - a.created_at));
+                    }
+                    else if (sql.includes('SELECT * FROM contact_messages WHERE id = ?')) {
+                        const message = mockMessages.find(m => m.id === parseInt(params[0]));
+                        callback(null, message ? [message] : []);
+                    }
+                    // PRODUCTS CRUD
+                    else if (sql.includes('SELECT p.*, c.name as category_name FROM products')) {
+                        const results = mockProducts.map(p => ({
+                            ...p,
+                            category_name: mockCategories.find(c => c.id === p.category_id)?.name || null
+                        }));
+                        callback(null, results);
+                    }
+                    else if (sql.includes('SELECT * FROM products WHERE id = ?')) {
+                        const product = mockProducts.find(p => p.id === parseInt(params[0]));
+                        callback(null, product ? [product] : []);
+                    }
+                    else if (sql.includes('INSERT INTO products')) {
+                        const [name, description, price, category_id, image_url, status] = params;
+                        const newProduct = { 
+                            id: nextProductId++, name, description, price, category_id, 
+                            image_url, status, created_at: new Date(), updated_at: new Date() 
+                        };
+                        mockProducts.push(newProduct);
+                        console.log('✓ Mock DB: Product created:', name);
+                        callback(null, { insertId: newProduct.id });
+                    }
+                    else if (sql.includes('UPDATE products')) {
+                        const productId = params[params.length - 1];
+                        const idx = mockProducts.findIndex(p => p.id === parseInt(productId));
+                        if (idx >= 0) {
+                            const [name, description, price, category_id, image_url, status] = params;
+                            mockProducts[idx] = { ...mockProducts[idx], name, description, price, category_id, image_url, status, updated_at: new Date() };
+                            console.log('✓ Mock DB: Product updated:', name);
+                            callback(null, { affectedRows: 1 });
+                        } else {
+                            callback(null, { affectedRows: 0 });
+                        }
+                    }
+                    else if (sql.includes('DELETE FROM products WHERE id = ?')) {
+                        const idx = mockProducts.findIndex(p => p.id === parseInt(params[0]));
+                        if (idx >= 0) {
+                            const deleted = mockProducts.splice(idx, 1)[0];
+                            console.log('✓ Mock DB: Product deleted:', deleted.name);
+                            callback(null, { affectedRows: 1 });
+                        } else {
+                            callback(null, { affectedRows: 0 });
+                        }
+                    }
+                    // CATEGORIES
+                    else if (sql.includes('SELECT * FROM categories')) {
+                        callback(null, mockCategories);
+                    }
+                    // PROJECTS
+                    else if (sql.includes('SELECT * FROM projects')) {
+                        callback(null, mockProjects);
+                    }
+                    // HEALTH CHECK
+                    else if (sql.includes('SELECT 1 AS ok')) {
+                        callback(null, [{ ok: 1 }]);
+                    }
                     // Default: return empty results
                     else {
+                        console.log('Mock DB: Unhandled query, returning empty');
                         callback(null, []);
                     }
                 } catch (error) {
