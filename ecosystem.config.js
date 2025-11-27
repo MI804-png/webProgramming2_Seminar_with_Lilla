@@ -11,7 +11,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         INTERNAL_PORT: 4206,
-        BASE_ROUTE: '/app206',
+        BASE_PATH: '/app206',
         DB_HOST: 'localhost',
         DB_PORT: 3306,
         DB_USER: 'studb206',
@@ -24,7 +24,7 @@ module.exports = {
       env_development: {
         NODE_ENV: 'development',
         INTERNAL_PORT: 4206,
-        BASE_ROUTE: '/app206',
+        BASE_PATH: '/app206',
         DB_HOST: 'localhost',
         DB_PORT: 3306,
         DB_USER: 'studb206',
