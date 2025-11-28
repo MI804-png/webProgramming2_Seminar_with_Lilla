@@ -122,24 +122,24 @@ router.post('/add', (req, res) => {
         return res.status(403).json({ error: 'Admin access required' });
     }
     
-    const { name, description, status, start_date, end_date } = req.body;
+    const { title, description, technologies, image_url, project_url } = req.body;
     const db = req.app.locals.db;
     
-    if (!name || !description) {
-        return redirectTo(res, '/projects/add?error=Name and description are required');
+    if (!title || !description) {
+        return redirectTo(res, '/projects/add?error=Title and description are required');
     }
     
     const insertQuery = `
-        INSERT INTO projects (name, description, status, start_date, end_date, created_at) 
+        INSERT INTO projects (title, description, technologies, image_url, project_url, created_at) 
         VALUES (?, ?, ?, ?, ?, NOW())
     `;
     
     const values = [
-        name,
+        title,
         description,
-        status || 'planning',
-        start_date || null,
-        end_date || null
+        technologies || null,
+        image_url || null,
+        project_url || null
     ];
     
     db.query(insertQuery, values, (error, results) => {
@@ -159,25 +159,25 @@ router.post('/edit/:id', (req, res) => {
     }
     
     const projectId = req.params.id;
-    const { name, description, status, start_date, end_date } = req.body;
+    const { title, description, technologies, image_url, project_url } = req.body;
     const db = req.app.locals.db;
     
-    if (!name || !description) {
-        return redirectTo(res, `/projects/edit/${projectId}?error=Name and description are required`);
+    if (!title || !description) {
+        return redirectTo(res, `/projects/edit/${projectId}?error=Title and description are required`);
     }
     
     const updateQuery = `
         UPDATE projects 
-        SET name = ?, description = ?, status = ?, start_date = ?, end_date = ?
+        SET title = ?, description = ?, technologies = ?, image_url = ?, project_url = ?
         WHERE id = ?
     `;
     
     const values = [
-        name,
+        title,
         description,
-        status || 'planning',
-        start_date || null,
-        end_date || null,
+        technologies || null,
+        image_url || null,
+        project_url || null,
         projectId
     ];
     
