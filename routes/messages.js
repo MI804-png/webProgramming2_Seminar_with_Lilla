@@ -8,11 +8,11 @@ function redirectTo(res, path) {
     res.redirect(fullPath);
 }
 
-// Messages menu - display contact messages (registered users only)
+// Messages menu - display contact messages (admin only)
 router.get('/', (req, res) => {
-    // Check if user is registered or admin
-    if (!req.isAuthenticated() || (req.user.role !== 'registered' && req.user.role !== 'admin')) {
-        return redirectTo(res, '/login?error=registration_required');
+    // Check if user is admin
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return redirectTo(res, '/login?error=admin_required');
     }
     
     const db = req.app.locals.db;
@@ -38,9 +38,9 @@ router.get('/', (req, res) => {
 
 // View individual message (registered users only)
 router.get('/:id', (req, res) => {
-    // Check if user is registered or admin
-    if (!req.isAuthenticated() || (req.user.role !== 'registered' && req.user.role !== 'admin')) {
-        return redirectTo(res, '/login?error=registration_required');
+    // Check if user is admin
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return redirectTo(res, '/login?error=admin_required');
     }
     
     const messageId = req.params.id;
