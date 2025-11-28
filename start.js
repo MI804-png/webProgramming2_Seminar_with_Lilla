@@ -176,13 +176,14 @@ connection.connect((err) => {
                             callback(null, { affectedRows: 0 });
                         }
                     }
-                    else if (sql.includes('UPDATE contact_messages SET name = ?')) {
-                        const messageId = params[params.length - 1];
+                    else if (sql.includes('UPDATE contact_messages SET subject = ?, message = ?, status = ? WHERE id = ?')) {
+                        const [subject, message, status, messageId] = params;
                         const idx = mockMessages.findIndex(m => m.id === parseInt(messageId));
                         if (idx >= 0) {
-                            const [name, email, subject, message, status] = params;
-                            mockMessages[idx] = { ...mockMessages[idx], name, email, subject, message, status };
-                            console.log('✓ Mock DB: Message updated:', messageId);
+                            mockMessages[idx].subject = subject;
+                            mockMessages[idx].message = message;
+                            mockMessages[idx].status = status;
+                            console.log('✓ Mock DB: Message updated:', messageId, '- Subject:', subject);
                             callback(null, { affectedRows: 1 });
                         } else {
                             callback(null, { affectedRows: 0 });
