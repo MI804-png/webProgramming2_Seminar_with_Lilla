@@ -45,7 +45,7 @@ router.get('/add', (req, res) => {
     res.render('project_form', {
         title: 'Add Project - TechCorp Solutions',
         project: null,
-        action: 'add',
+        isEdit: false,
         error: req.query.error || ''
     });
 });
@@ -78,7 +78,7 @@ router.get('/edit/:id', (req, res) => {
         res.render('project_form', {
             title: 'Edit Project - TechCorp Solutions',
             project: results[0],
-            action: 'edit',
+            isEdit: true,
             error: req.query.error || ''
         });
     });
@@ -109,7 +109,7 @@ router.get('/view/:id', (req, res) => {
             });
         }
         
-        res.render('project_detail', {
+        res.render('project_view', {
             title: 'Project Details - TechCorp Solutions',
             project: results[0]
         });
