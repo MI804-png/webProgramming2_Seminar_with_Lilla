@@ -1002,8 +1002,8 @@ function handleCRUD(req, res, session, route) {
                                     <input type="number" name="harddisk" required placeholder="e.g., 512">
                                 </div>
                                 <div class="form-group">
-                                    <label>Video Card</label>
-                                    <input type="text" name="videocard" placeholder="e.g., Intel UHD Graphics">
+                                    <label>Video Controller</label>
+                                    <input type="text" name="videocontroller" placeholder="e.g., Intel UHD Graphics">
                                 </div>
                                 <div class="form-group">
                                     <label>Price (Ft) *</label>
@@ -1047,8 +1047,8 @@ function handleCRUD(req, res, session, route) {
             req.on('data', chunk => body += chunk);
             req.on('end', () => {
                 const data = querystring.parse(body);
-                const query = "INSERT INTO notebook (manufacturer, type, display, memory, harddisk, videocard, price, processorid, opsystemid, pieces, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                const values = [data.manufacturer, data.type, data.display, data.memory, data.harddisk, data.videocard, data.price, data.processorid, data.opsystemid, data.pieces, data.picture];
+                const query = "INSERT INTO notebook (manufacturer, type, display, memory, harddisk, videocontroller, price, processorid, opsystemid, pieces, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                const values = [data.manufacturer, data.type, data.display, data.memory, data.harddisk, data.videocontroller, data.price, data.processorid, data.opsystemid, data.pieces, data.picture];
                 connection.query(query, values, function(err) {
                     if (err) {
                         const content = `<div class="alert alert-error">Error: ${escapeHtml(err.message)}</div><a href="${BASE_ROUTE}/crud/create" class="btn">Try Again</a>`;
@@ -1097,8 +1097,8 @@ function handleCRUD(req, res, session, route) {
                                         <input type="number" name="harddisk" required value="${nb.harddisk}">
                                     </div>
                                     <div class="form-group">
-                                        <label>Video Card</label>
-                                        <input type="text" name="videocard" value="${escapeHtml(nb.videocard || '')}">
+                                        <label>Video Controller</label>
+                                        <input type="text" name="videocontroller" value="${escapeHtml(nb.videocontroller || '')}">
                                     </div>
                                     <div class="form-group">
                                         <label>Price (Ft) *</label>
@@ -1141,8 +1141,8 @@ function handleCRUD(req, res, session, route) {
             req.on('data', chunk => body += chunk);
             req.on('end', () => {
                 const data = querystring.parse(body);
-                const query = "UPDATE notebook SET manufacturer=?, type=?, display=?, memory=?, harddisk=?, videocard=?, price=?, processorid=?, opsystemid=?, pieces=?, picture=? WHERE id=?";
-                const values = [data.manufacturer, data.type, data.display, data.memory, data.harddisk, data.videocard, data.price, data.processorid, data.opsystemid, data.pieces, data.picture, id];
+                const query = "UPDATE notebook SET manufacturer=?, type=?, display=?, memory=?, harddisk=?, videocontroller=?, price=?, processorid=?, opsystemid=?, pieces=?, picture=? WHERE id=?";
+                const values = [data.manufacturer, data.type, data.display, data.memory, data.harddisk, data.videocontroller, data.price, data.processorid, data.opsystemid, data.pieces, data.picture, id];
                 connection.query(query, values, function(err) {
                     if (err) {
                         const content = `<div class="alert alert-error">Error: ${escapeHtml(err.message)}</div><a href="${BASE_ROUTE}/crud/edit/${id}" class="btn">Try Again</a>`;
