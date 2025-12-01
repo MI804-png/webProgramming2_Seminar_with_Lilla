@@ -108,7 +108,10 @@ function setupTables() {
             );
         }
     });
-}
+    
+    // Check if sample data already exists
+    connection.query("SELECT COUNT(*) as count FROM notebook", function(err, result) {
+        if (!err && result[0].count === 0) {
             // Insert operating systems
             const opsystems = [
                 "Windows 10", "Windows 11", "Ubuntu 20.04", "Ubuntu 22.04",
@@ -969,12 +972,189 @@ function handleCRUD(req, res, session, route) {
             res.writeHead(302, {'Location': `${BASE_ROUTE}/crud`});
             res.end();
         });
-    } else if (action === 'create' || (action === 'edit' && id)) {
-        // Show form or handle POST - simplified for space
-        const content = `<h1>${action === 'create' ? 'Add' : 'Edit'} Notebook</h1><div class="alert alert-info">CRUD form would go here</div><a href="${BASE_ROUTE}/crud" class="btn">Back</a>`;
-        const html = renderPage('CRUD Form', content, session);
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        res.end(html);
+    } else if (action === 'create') {
+        if (req.method === 'GET') {
+            // Get processors and OS for dropdowns
+            connection.query("SELECT * FROM processor ORDER BY manufacturer", function(err, processors) {
+                connection.query("SELECT * FROM opsystem ORDER BY osname", function(err2, systems) {
+                    const content = `
+                        <h1>➕ Add New Notebook</h1>
+                        <div class="card">
+                            <form method="POST" action="${BASE_ROUTE}/crud/create">
+                                <div class="form-group">
+                                    <label>Brand/Manufacturer *</label>
+                                    <input type="text" name="manufacturer" required placeholder="e.g., Dell, HP, Lenovo">
+                                </div>
+                                <div class="form-group">
+                                    <label>Model/Type *</label>
+                                    <input type="text" name="type" required placeholder="e.g., Latitude 5420">
+                                </div>
+                                <div class="form-group">
+                                    <label>Display Size (inches) *</label>
+                                    <input type="number" name="display" step="0.1" required placeholder="e.g., 14.0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Memory (MB) *</label>
+                                    <input type="number" name="memory" required placeholder="e.g., 8192">
+                                </div>
+                                <div class="form-group">
+                                    <label>Hard Disk (GB) *</label>
+                                    <input type="number" name="harddisk" required placeholder="e.g., 512">
+                                </div>
+                                <div class="form-group">
+                                    <label>Video Card</label>
+                                    <input type="text" name="videocard" placeholder="e.g., Intel UHD Graphics">
+                                </div>
+                                <div class="form-group">
+                                    <label>Price (Ft) *</label>
+                                    <input type="number" name="price" required placeholder="e.g., 89900">
+                                </div>
+                                <div class="form-group">
+                                    <label>Processor *</label>
+                                    <select name="processorid" required>
+                                        <option value="">-- Select Processor --</option>
+                                        ${processors.map(p => `<option value="${p.id}">${escapeHtml(p.manufacturer)} ${escapeHtml(p.type)}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Operating System *</label>
+                                    <select name="opsystemid" required>
+                                        <option value="">-- Select OS --</option>
+                                        ${systems.map(s => `<option value="${s.id}">${escapeHtml(s.osname)}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Pieces in Stock *</label>
+                                    <input type="number" name="pieces" required value="1" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Picture Filename</label>
+                                    <input type="text" name="picture" placeholder="e.g., laptop.jpg">
+                                </div>
+                                <button type="submit" class="btn btn-success">💾 Create Notebook</button>
+                                <a href="${BASE_ROUTE}/crud" class="btn btn-secondary">Cancel</a>
+                            </form>
+                        </div>
+                    `;
+                    const html = renderPage('Add Notebook', content, session);
+                    res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+                    res.end(html);
+                });
+            });
+        } else {
+            // Handle POST - create
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', () => {
+                const data = querystring.parse(body);
+                const query = "INSERT INTO notebook (manufacturer, type, display, memory, harddisk, videocard, price, processorid, opsystemid, pieces, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                const values = [data.manufacturer, data.type, data.display, data.memory, data.harddisk, data.videocard, data.price, data.processorid, data.opsystemid, data.pieces, data.picture];
+                connection.query(query, values, function(err) {
+                    if (err) {
+                        const content = `<div class="alert alert-error">Error: ${escapeHtml(err.message)}</div><a href="${BASE_ROUTE}/crud/create" class="btn">Try Again</a>`;
+                        const html = renderPage('Error', content, session);
+                        res.writeHead(500, {'Content-Type': 'text/html; charset=utf-8'});
+                        return res.end(html);
+                    }
+                    res.writeHead(302, {'Location': `${BASE_ROUTE}/crud`});
+                    res.end();
+                });
+            });
+        }
+    } else if (action === 'edit' && id) {
+        if (req.method === 'GET') {
+            // Get notebook data and lists
+            connection.query("SELECT * FROM notebook WHERE id = ?", [id], function(err, notebooks) {
+                if (err || notebooks.length === 0) {
+                    res.writeHead(302, {'Location': `${BASE_ROUTE}/crud`});
+                    return res.end();
+                }
+                const nb = notebooks[0];
+                connection.query("SELECT * FROM processor ORDER BY manufacturer", function(err, processors) {
+                    connection.query("SELECT * FROM opsystem ORDER BY osname", function(err2, systems) {
+                        const content = `
+                            <h1>✏️ Edit Notebook #${nb.id}</h1>
+                            <div class="card">
+                                <form method="POST" action="${BASE_ROUTE}/crud/edit/${nb.id}">
+                                    <div class="form-group">
+                                        <label>Brand/Manufacturer *</label>
+                                        <input type="text" name="manufacturer" required value="${escapeHtml(nb.manufacturer)}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Model/Type *</label>
+                                        <input type="text" name="type" required value="${escapeHtml(nb.type)}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Display Size (inches) *</label>
+                                        <input type="number" name="display" step="0.1" required value="${nb.display}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Memory (MB) *</label>
+                                        <input type="number" name="memory" required value="${nb.memory}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Hard Disk (GB) *</label>
+                                        <input type="number" name="harddisk" required value="${nb.harddisk}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Video Card</label>
+                                        <input type="text" name="videocard" value="${escapeHtml(nb.videocard || '')}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Price (Ft) *</label>
+                                        <input type="number" name="price" required value="${nb.price}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Processor *</label>
+                                        <select name="processorid" required>
+                                            ${processors.map(p => `<option value="${p.id}" ${p.id == nb.processorid ? 'selected' : ''}>${escapeHtml(p.manufacturer)} ${escapeHtml(p.type)}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Operating System *</label>
+                                        <select name="opsystemid" required>
+                                            ${systems.map(s => `<option value="${s.id}" ${s.id == nb.opsystemid ? 'selected' : ''}>${escapeHtml(s.osname)}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Pieces in Stock *</label>
+                                        <input type="number" name="pieces" required value="${nb.pieces}" min="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Picture Filename</label>
+                                        <input type="text" name="picture" value="${escapeHtml(nb.picture || '')}">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">💾 Update Notebook</button>
+                                    <a href="${BASE_ROUTE}/crud" class="btn btn-secondary">Cancel</a>
+                                </form>
+                            </div>
+                        `;
+                        const html = renderPage('Edit Notebook', content, session);
+                        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+                        res.end(html);
+                    });
+                });
+            });
+        } else {
+            // Handle POST - update
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', () => {
+                const data = querystring.parse(body);
+                const query = "UPDATE notebook SET manufacturer=?, type=?, display=?, memory=?, harddisk=?, videocard=?, price=?, processorid=?, opsystemid=?, pieces=?, picture=? WHERE id=?";
+                const values = [data.manufacturer, data.type, data.display, data.memory, data.harddisk, data.videocard, data.price, data.processorid, data.opsystemid, data.pieces, data.picture, id];
+                connection.query(query, values, function(err) {
+                    if (err) {
+                        const content = `<div class="alert alert-error">Error: ${escapeHtml(err.message)}</div><a href="${BASE_ROUTE}/crud/edit/${id}" class="btn">Try Again</a>`;
+                        const html = renderPage('Error', content, session);
+                        res.writeHead(500, {'Content-Type': 'text/html; charset=utf-8'});
+                        return res.end(html);
+                    }
+                    res.writeHead(302, {'Location': `${BASE_ROUTE}/crud`});
+                    res.end();
+                });
+            });
+        }
     }
 }
 
