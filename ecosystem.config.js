@@ -15,7 +15,7 @@ module.exports = {
         DB_HOST: 'localhost',
         DB_PORT: 3306,
         DB_USER: 'student206',
-        DB_PASS: '',
+        DB_PASS: 'abc123',
         DB_NAME: 'notebook',
         LINUX_USER: 'student206',
         NEPTUN_CODE: 'IHUTSC',
