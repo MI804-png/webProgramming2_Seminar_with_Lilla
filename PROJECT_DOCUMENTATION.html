@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechCorp Solutions - Project Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 60px;
+            background: #fff;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #3498db;
+        }
+        
+        h2 {
+            color: #34495e;
+            font-size: 2em;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #95a5a6;
+        }
+        
+        h3 {
+            color: #7f8c8d;
+            font-size: 1.5em;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+        
+        h4 {
+            color: #555;
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        pre code {
+            background: transparent;
+            color: #ecf0f1;
+            padding: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95em;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tr:hover {
+            background: #e8f4f8;
+        }
+        
+        blockquote {
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+            margin: 20px 0;
+            color: #555;
+            font-style: italic;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 40px 0;
+        }
+        
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .page-break {
+            page-break-after: always;
+        }
+        
+        @media print {
+            body {
+                padding: 20px;
+                max-width: 100%;
+            }
+            
+            h1, h2, h3 {
+                page-break-after: avoid;
+            }
+            
+            pre, table {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>TechCorp Solutions - Web Application Documentation</h1>
+<p><strong>Project Name:</strong> TechCorp Solutions Web Application<br><strong>Course:</strong> Web Programming 2<br><strong>Date:</strong> November 28, 2025</p>
+<p><strong>Developers:</strong></p>
+<ul>
+<li><strong>Mikhael Nabil Salama Rezk</strong></li>
+<li><strong>Szabó Lilla</strong> (Instructor/Colleague)</li>
+</ul>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#project-overview">Project Overview</a></li>
+<li><a href="#technical-architecture">Technical Architecture</a></li>
+<li><a href="#deployment-information">Deployment Information</a></li>
+<li><a href="#features-implementation">Features Implementation</a></li>
+<li><a href="#database-structure">Database Structure</a></li>
+<li><a href="#api-routes">API Routes</a></li>
+<li><a href="#user-authentication">User Authentication</a></li>
+<li><a href="#admin-panel">Admin Panel</a></li>
+<li><a href="#testing--validation">Testing &amp; Validation</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ol>
+<hr>
+<h2>1. Project Overview</h2>
+<p>TechCorp Solutions is a full-stack Node.js web application deployed on a Linux server. The application demonstrates modern web development practices including user authentication, CRUD operations, database integration, and administrative features.</p>
+<h3>Key Technologies</h3>
+<ul>
+<li><strong>Backend:</strong> Node.js v22.19.0, Express.js 4.x</li>
+<li><strong>Frontend:</strong> EJS Templates, Bootstrap 5 (Lux Theme)</li>
+<li><strong>Database:</strong> MySQL/MariaDB with Mock Mode fallback</li>
+<li><strong>Process Manager:</strong> PM2 (Production deployment)</li>
+<li><strong>Version Control:</strong> Git/GitHub</li>
+<li><strong>Server:</strong> Ubuntu Linux (143.47.98.96)</li>
+</ul>
+<h3>Application URL</h3>
+<p><strong>Live Application:</strong> <a href="http://143.47.98.96/app206/">http://143.47.98.96/app206/</a></p>
+<hr>
+<h2>2. Technical Architecture</h2>
+<h3>Application Structure</h3>
+<pre><code>exercise/
+├── start.js                 # Main application entry point
+├── package.json             # Dependencies and scripts
+├── ecosystem.config.js      # PM2 configuration
+├── routes/                  # Route handlers
+│   ├── auth.js             # Authentication routes
+│   ├── database.js         # Database display
+│   ├── contact.js          # Contact form
+│   ├── messages.js         # Message management
+│   ├── crud.js             # Product CRUD
+│   └── projects.js         # Project management
+├── views/                   # EJS templates
+│   ├── layout.ejs          # Main layout template
+│   ├── index.ejs           # Homepage
+│   ├── login.ejs           # Login page
+│   ├── register.ejs        # Registration page
+│   ├── contact.ejs         # Contact form
+│   ├── messages.ejs        # Messages list
+│   ├── message_detail.ejs  # Message details
+│   ├── message_edit.ejs    # Edit message
+│   ├── message_reply.ejs   # Reply to message
+│   ├── crud_products.ejs   # Products list
+│   ├── crud_product_form.ejs # Add/Edit product
+│   ├── projects.ejs        # Projects list
+│   ├── project_form.ejs    # Add/Edit project
+│   └── project_view.ejs    # Project details
+└── public/                  # Static assets
+    └── css/                # Stylesheets
+</code></pre>
+<h3>Environment Configuration</h3>
+<ul>
+<li><strong>BASE_PATH:</strong> <code>/app206</code> (Nginx reverse proxy path)</li>
+<li><strong>INTERNAL_PORT:</strong> <code>4206</code> (Application listening port)</li>
+<li><strong>NODE_ENV:</strong> <code>production</code></li>
+<li><strong>Database:</strong> Mock mode (studb206 user not created)</li>
+</ul>
+<hr>
+<h2>3. Deployment Information</h2>
+<h3>Server Details</h3>
+<ul>
+<li><strong>Server IP:</strong> 143.47.98.96</li>
+<li><strong>Username:</strong> student206</li>
+<li><strong>Application Directory:</strong> <code>~/webprogramming_with_lilla/</code></li>
+<li><strong>PM2 Process Name:</strong> app206</li>
+<li><strong>PM2 Binary Location:</strong> <code>~/.local/bin/pm2</code></li>
+</ul>
+<h3>Deployment Process</h3>
+<ol>
+<li><strong>Git Push:</strong> Changes pushed to GitHub repository</li>
+<li><strong>SSH Connection:</strong> Connect to server as student206</li>
+<li><strong>Git Pull:</strong> Update code from repository</li>
+<li><strong>PM2 Restart:</strong> Restart application with zero downtime</li>
+</ol>
+<h3>PM2 Configuration (ecosystem.config.js)</h3>
+<pre><code class="language-javascript">module.exports = {
+  apps: [{
+    name: &#39;app206&#39;,
+    script: &#39;./start.js&#39;,
+    instances: 1,
+    exec_mode: &#39;cluster&#39;,
+    env: {
+      NODE_ENV: &#39;production&#39;,
+      BASE_PATH: &#39;/app206&#39;,
+      INTERNAL_PORT: 4206,
+      DB_HOST: &#39;localhost&#39;,
+      DB_USER: &#39;studb206&#39;,
+      DB_PASSWORD: &#39;[PASSWORD]&#39;,
+      DB_NAME: &#39;studb206&#39;,
+      SESSION_SECRET: &#39;[SECRET]&#39;
+    }
+  }]
+};
+</code></pre>
+<hr>
+<h2>4. Features Implementation</h2>
+<h3>Homework Requirements (11 Features)</h3>
+<h4>1. <strong>Homepage</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/</code></li>
+<li>Modern landing page with hero section</li>
+<li>Service cards (Web Development, Mobile Apps, Cloud Solutions)</li>
+<li>Statistics counter</li>
+<li>Call-to-action sections</li>
+</ul>
+<h4>2. <strong>Products Page</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/products</code></li>
+<li>Displays products from database</li>
+<li>Shows product details (name, description, price)</li>
+<li>Category filtering</li>
+<li>Joined with categories table</li>
+</ul>
+<h4>3. <strong>Database Page</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/database</code></li>
+<li>Displays first 10 products with categories</li>
+<li>SQL JOIN demonstration</li>
+<li>Table format with Bootstrap styling</li>
+</ul>
+<h4>4. <strong>About Page</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/about</code></li>
+<li>Company information</li>
+<li>Team member profiles</li>
+<li>Mission and values</li>
+</ul>
+<h4>5. <strong>Contact Page</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/contact</code></li>
+<li>Contact form with validation</li>
+<li>Saves messages to database</li>
+<li>Success/error feedback</li>
+</ul>
+<h4>6. <strong>User Registration</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/register</code></li>
+<li>Form with validation</li>
+<li>Password hashing (SHA-256)</li>
+<li>Duplicate username prevention</li>
+</ul>
+<h4>7. <strong>User Login</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/login</code></li>
+<li>Passport.js authentication</li>
+<li>Session management</li>
+<li>Role-based access (admin/user)</li>
+</ul>
+<h4>8. <strong>User Logout</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/logout</code></li>
+<li>Session destruction</li>
+<li>Redirect to homepage</li>
+</ul>
+<h4>9. <strong>Protected Route</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/protected</code></li>
+<li>Requires authentication</li>
+<li>Displays user information</li>
+<li>Admin badge for administrators</li>
+</ul>
+<h4>10. <strong>Admin Route</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/admin</code></li>
+<li>Admin-only access</li>
+<li>User management interface</li>
+<li>System statistics</li>
+</ul>
+<h4>11. <strong>Product CRUD</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/crud</code></li>
+<li>Full Create, Read, Update, Delete</li>
+<li>Admin-only access</li>
+<li>Product management interface</li>
+</ul>
+<h3>Additional Features Implemented</h3>
+<h4>12. <strong>Message Management</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/messages</code></li>
+<li>View all contact messages</li>
+<li>Status management (new/read/replied/archived)</li>
+<li>Edit, delete, reply functionality</li>
+<li>Search and filter capabilities</li>
+</ul>
+<h4>13. <strong>Project Management</strong> ✅</h4>
+<ul>
+<li>Route: <code>/app206/projects</code></li>
+<li>Full CRUD for portfolio projects</li>
+<li>Image URL support</li>
+<li>Technology tags</li>
+<li>Project URL linking</li>
+</ul>
+<hr>
+<h2>5. Database Structure</h2>
+<h3>Mock Database Implementation</h3>
+<p>Due to database user not being created, the application runs in <strong>DEMO MODE</strong> with in-memory mock data.</p>
+<h4>Tables &amp; Structure</h4>
+<p><strong>users</strong></p>
+<pre><code class="language-sql">CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100),
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) DEFAULT &#39;user&#39;,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+</code></pre>
+<p><strong>products</strong></p>
+<pre><code class="language-sql">CREATE TABLE products (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2),
+    category_id INT,
+    status VARCHAR(20) DEFAULT &#39;active&#39;,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+</code></pre>
+<p><strong>categories</strong></p>
+<pre><code class="language-sql">CREATE TABLE categories (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    description TEXT
+);
+</code></pre>
+<p><strong>contact_messages</strong></p>
+<pre><code class="language-sql">CREATE TABLE contact_messages (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    subject VARCHAR(200),
+    message TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT &#39;new&#39;,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+</code></pre>
+<p><strong>projects</strong></p>
+<pre><code class="language-sql">CREATE TABLE projects (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    technologies TEXT,
+    image_url VARCHAR(500),
+    project_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+</code></pre>
+<h3>Mock Data</h3>
+<p><strong>Default Users:</strong></p>
+<ul>
+<li><strong>Admin:</strong> username: <code>admin</code>, password: <code>admin123</code>, role: <code>admin</code></li>
+<li><strong>Test User:</strong> username: <code>testuser</code>, password: <code>hello</code>, role: <code>user</code></li>
+</ul>
+<p><strong>Sample Products:</strong></p>
+<ul>
+<li>Premium Hosting Plan ($29.99)</li>
+<li>Custom Web Development ($999.99)</li>
+<li>Mobile App Package ($1499.99)</li>
+</ul>
+<p><strong>Sample Projects:</strong></p>
+<ul>
+<li>E-Commerce Platform (React, Node.js, MongoDB)</li>
+<li>Mobile Banking App (React Native, Firebase)</li>
+</ul>
+<hr>
+<h2>6. API Routes</h2>
+<h3>Authentication Routes (<code>/auth</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>Description</th>
+<th>Access</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/login</code></td>
+<td>Login page</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/login</code></td>
+<td>Login handler</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/register</code></td>
+<td>Registration page</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/register</code></td>
+<td>Registration handler</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/logout</code></td>
+<td>Logout user</td>
+<td>Authenticated</td>
+</tr>
+</tbody></table>
+<h3>Product CRUD Routes (<code>/crud</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>Description</th>
+<th>Access</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>List products</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/add</code></td>
+<td>Add product form</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/add</code></td>
+<td>Create product</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/view/:id</code></td>
+<td>View product</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/edit/:id</code></td>
+<td>Edit product form</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/edit/:id</code></td>
+<td>Update product</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/delete/:id</code></td>
+<td>Delete product</td>
+<td>Admin</td>
+</tr>
+</tbody></table>
+<h3>Message Routes (<code>/messages</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>Description</th>
+<th>Access</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>List messages</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/:id</code></td>
+<td>View message</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/:id/status</code></td>
+<td>Update status</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/:id/edit</code></td>
+<td>Edit message form</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/:id/edit</code></td>
+<td>Update message</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/:id/delete</code></td>
+<td>Delete message</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/:id/reply</code></td>
+<td>Reply form</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/:id/reply</code></td>
+<td>Send reply</td>
+<td>Admin</td>
+</tr>
+</tbody></table>
+<h3>Project Routes (<code>/projects</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>Description</th>
+<th>Access</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>List projects</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/add</code></td>
+<td>Add project form</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/add</code></td>
+<td>Create project</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/view/:id</code></td>
+<td>View project</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/edit/:id</code></td>
+<td>Edit project form</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/edit/:id</code></td>
+<td>Update project</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/delete/:id</code></td>
+<td>Delete project</td>
+<td>Admin</td>
+</tr>
+</tbody></table>
+<h3>Public Routes</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>Description</th>
+<th>Access</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>Homepage</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/products</code></td>
+<td>Products page</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/about</code></td>
+<td>About page</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/database</code></td>
+<td>Database display</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/contact</code></td>
+<td>Contact form</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/contact</code></td>
+<td>Submit message</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/protected</code></td>
+<td>Protected page</td>
+<td>Authenticated</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/admin</code></td>
+<td>Admin page</td>
+<td>Admin</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. User Authentication</h2>
+<h3>Implementation Details</h3>
+<p><strong>Authentication Library:</strong> Passport.js with Local Strategy</p>
+<p><strong>Session Management:</strong></p>
+<ul>
+<li>Express-session with MemoryStore</li>
+<li>Session secret from environment variables</li>
+<li>Cookie settings: secure in production</li>
+</ul>
+<p><strong>Password Security:</strong></p>
+<ul>
+<li>SHA-256 hashing algorithm</li>
+<li>Salt added during registration</li>
+<li>Never stored in plain text</li>
+</ul>
+<h3>Authentication Flow</h3>
+<pre><code>1. User submits login form
+   ↓
+2. Passport LocalStrategy validates credentials
+   ↓
+3. Mock database checks username/password
+   ↓
+4. Session created with user data
+   ↓
+5. User redirected to protected area
+</code></pre>
+<h3>Middleware</h3>
+<p><strong>isAuthenticated:</strong></p>
+<pre><code class="language-javascript">function isAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    redirectTo(res, &#39;/login&#39;);
+}
+</code></pre>
+<p><strong>isAdmin:</strong></p>
+<pre><code class="language-javascript">function isAdmin(req, res, next) {
+    if (req.isAuthenticated() &amp;&amp; req.user.role === &#39;admin&#39;) {
+        return next();
+    }
+    res.status(403).send(&#39;Admin access required&#39;);
+}
+</code></pre>
+<hr>
+<h2>8. Admin Panel</h2>
+<h3>Admin Features</h3>
+<h4>Product Management (<code>/crud</code>)</h4>
+<ul>
+<li><strong>Create:</strong> Add new products with details</li>
+<li><strong>Read:</strong> View product list with categories</li>
+<li><strong>Update:</strong> Edit product information</li>
+<li><strong>Delete:</strong> Remove products with confirmation</li>
+<li><strong>Search:</strong> Filter products by name/category</li>
+<li><strong>Status:</strong> Toggle active/inactive status</li>
+<li><strong>Statistics:</strong> Total, active, inactive counts</li>
+</ul>
+<h4>Message Management (<code>/messages</code>)</h4>
+<ul>
+<li><strong>View All:</strong> List contact messages</li>
+<li><strong>Status Updates:</strong> Mark as new/read/replied/archived</li>
+<li><strong>Reply:</strong> Respond to customer inquiries</li>
+<li><strong>Edit:</strong> Modify message content</li>
+<li><strong>Delete:</strong> Remove spam/invalid messages</li>
+<li><strong>Search:</strong> Filter by name, email, subject</li>
+<li><strong>Details:</strong> View full message content</li>
+</ul>
+<h4>Project Management (<code>/projects</code>)</h4>
+<ul>
+<li><strong>Add Projects:</strong> Create portfolio items</li>
+<li><strong>Edit Details:</strong> Update project information</li>
+<li><strong>Delete Projects:</strong> Remove old projects</li>
+<li><strong>View Details:</strong> Full project display</li>
+<li><strong>Image Support:</strong> Project screenshots</li>
+<li><strong>Technology Tags:</strong> Tech stack display</li>
+<li><strong>External Links:</strong> Link to live projects</li>
+</ul>
+<h3>Admin Navigation</h3>
+<ul>
+<li>Dropdown menu in header (Admin icon)</li>
+<li>Quick access to:<ul>
+<li>Manage Products</li>
+<li>Manage Projects</li>
+<li>View Messages</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>9. Testing &amp; Validation</h2>
+<h3>Tested Functionality</h3>
+<h4>✅ Authentication</h4>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> User registration with duplicate prevention</li>
+<li><input checked="" disabled="" type="checkbox"> User login with correct credentials</li>
+<li><input checked="" disabled="" type="checkbox"> Login failure with incorrect credentials</li>
+<li><input checked="" disabled="" type="checkbox"> Session persistence across pages</li>
+<li><input checked="" disabled="" type="checkbox"> Logout functionality</li>
+<li><input checked="" disabled="" type="checkbox"> Protected route access control</li>
+<li><input checked="" disabled="" type="checkbox"> Admin-only route restrictions</li>
+</ul>
+<h4>✅ CRUD Operations</h4>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Create new products</li>
+<li><input checked="" disabled="" type="checkbox"> Read/view product list</li>
+<li><input checked="" disabled="" type="checkbox"> Update product details</li>
+<li><input checked="" disabled="" type="checkbox"> Delete products with confirmation</li>
+<li><input checked="" disabled="" type="checkbox"> All operations respect BASE_PATH</li>
+<li><input checked="" disabled="" type="checkbox"> Proper error handling</li>
+</ul>
+<h4>✅ Message System</h4>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Contact form submission</li>
+<li><input checked="" disabled="" type="checkbox"> Message storage in mock database</li>
+<li><input checked="" disabled="" type="checkbox"> Admin message viewing</li>
+<li><input checked="" disabled="" type="checkbox"> Status updates (AJAX)</li>
+<li><input checked="" disabled="" type="checkbox"> Message editing</li>
+<li><input checked="" disabled="" type="checkbox"> Message deletion</li>
+<li><input checked="" disabled="" type="checkbox"> Reply functionality</li>
+</ul>
+<h4>✅ Project Management</h4>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Create new projects</li>
+<li><input checked="" disabled="" type="checkbox"> View project list</li>
+<li><input checked="" disabled="" type="checkbox"> Edit project details</li>
+<li><input checked="" disabled="" type="checkbox"> Delete projects</li>
+<li><input checked="" disabled="" type="checkbox"> Project detail view</li>
+<li><input checked="" disabled="" type="checkbox"> Image and link support</li>
+</ul>
+<h4>✅ BASE_PATH Routing</h4>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> All routes use <code>/app206</code> prefix</li>
+<li><input checked="" disabled="" type="checkbox"> Redirects include BASE_PATH</li>
+<li><input checked="" disabled="" type="checkbox"> Static assets load correctly</li>
+<li><input checked="" disabled="" type="checkbox"> Forms submit to correct paths</li>
+<li><input checked="" disabled="" type="checkbox"> AJAX calls include BASE_PATH</li>
+</ul>
+<h3>Browser Compatibility</h3>
+<ul>
+<li>✅ Chrome/Edge (Latest)</li>
+<li>✅ Firefox (Latest)</li>
+<li>✅ Safari (Latest)</li>
+<li>✅ Mobile browsers</li>
+</ul>
+<h3>Security Features</h3>
+<ul>
+<li>✅ Password hashing</li>
+<li>✅ Session management</li>
+<li>✅ Role-based access control</li>
+<li>✅ Input validation</li>
+<li>✅ XSS prevention (EJS escaping)</li>
+<li>✅ CSRF consideration</li>
+</ul>
+<hr>
+<h2>10. Conclusion</h2>
+<h3>Project Achievements</h3>
+<p>This project successfully demonstrates:</p>
+<ol>
+<li><strong>Full-Stack Development:</strong> Complete Node.js/Express application with frontend and backend integration</li>
+<li><strong>Database Operations:</strong> CRUD operations with MySQL (mock mode implementation)</li>
+<li><strong>User Authentication:</strong> Secure login/registration with role-based access</li>
+<li><strong>Modern UI/UX:</strong> Bootstrap 5 with Lux theme for professional appearance</li>
+<li><strong>Production Deployment:</strong> Live application on Linux server with PM2</li>
+<li><strong>Git Workflow:</strong> Version control with GitHub integration</li>
+<li><strong>Admin Features:</strong> Comprehensive management interfaces</li>
+<li><strong>API Design:</strong> RESTful routes with proper HTTP methods</li>
+</ol>
+<h3>Technical Skills Demonstrated</h3>
+<ul>
+<li><strong>Backend:</strong> Node.js, Express.js, routing, middleware</li>
+<li><strong>Frontend:</strong> EJS templating, Bootstrap 5, responsive design</li>
+<li><strong>Database:</strong> MySQL queries, JOINs, mock data implementation</li>
+<li><strong>Security:</strong> Authentication, authorization, password hashing</li>
+<li><strong>DevOps:</strong> Linux server management, PM2, Git deployment</li>
+<li><strong>JavaScript:</strong> ES6+, async/await, fetch API, DOM manipulation</li>
+</ul>
+<h3>Future Enhancements</h3>
+<ol>
+<li><strong>Database Connection:</strong> Enable real MySQL database (requires admin to create studb206 user)</li>
+<li><strong>Email Integration:</strong> Implement actual email sending for replies</li>
+<li><strong>File Uploads:</strong> Add image upload for products and projects</li>
+<li><strong>API Endpoints:</strong> Create RESTful API for external integrations</li>
+<li><strong>Search Optimization:</strong> Full-text search across all content</li>
+<li><strong>Pagination:</strong> Implement pagination for large datasets</li>
+<li><strong>Export Features:</strong> PDF/CSV export for messages and products</li>
+<li><strong>Activity Logs:</strong> Track admin actions and user activities</li>
+</ol>
+<h3>Lessons Learned</h3>
+<ol>
+<li><strong>BASE_PATH Handling:</strong> Critical importance of consistent path management in reverse proxy scenarios</li>
+<li><strong>Mock Database:</strong> Effective fallback strategy when database access is unavailable</li>
+<li><strong>EJS Templating:</strong> Proper syntax for avoiding errors with embedded JavaScript</li>
+<li><strong>Data Attributes:</strong> Safer approach than inline onclick handlers with dynamic content</li>
+<li><strong>PM2 Deployment:</strong> Zero-downtime deployments with process management</li>
+<li><strong>Git Workflow:</strong> Importance of version control for production deployments</li>
+</ol>
+<hr>
+<h2>Appendix</h2>
+<h3>Deployment Commands</h3>
+<p><strong>Deploy to Server:</strong></p>
+<pre><code class="language-bash">git add -A
+git commit -m &quot;Description of changes&quot;
+git push origin main
+ssh student206@143.47.98.96 &quot;cd ~/webprogramming_with_lilla &amp;&amp; git pull &amp;&amp; ~/.local/bin/pm2 restart app206&quot;
+</code></pre>
+<p><strong>Check Application Status:</strong></p>
+<pre><code class="language-bash">ssh student206@143.47.98.96 &quot;~/.local/bin/pm2 status&quot;
+</code></pre>
+<p><strong>View Logs:</strong></p>
+<pre><code class="language-bash">ssh student206@143.47.98.96 &quot;~/.local/bin/pm2 logs app206 --lines 50&quot;
+</code></pre>
+<h3>Test Credentials</h3>
+<p><strong>Admin Account:</strong></p>
+<ul>
+<li>Username: <code>admin</code></li>
+<li>Password: <code>admin123</code></li>
+</ul>
+<p><strong>Regular User:</strong></p>
+<ul>
+<li>Username: <code>testuser</code></li>
+<li>Password: <code>hello</code></li>
+</ul>
+<h3>Important URLs</h3>
+<ul>
+<li><strong>Homepage:</strong> <a href="http://143.47.98.96/app206/">http://143.47.98.96/app206/</a></li>
+<li><strong>Login:</strong> <a href="http://143.47.98.96/app206/login">http://143.47.98.96/app206/login</a></li>
+<li><strong>Products:</strong> <a href="http://143.47.98.96/app206/products">http://143.47.98.96/app206/products</a></li>
+<li><strong>Contact:</strong> <a href="http://143.47.98.96/app206/contact">http://143.47.98.96/app206/contact</a></li>
+<li><strong>Admin Panel:</strong> <a href="http://143.47.98.96/app206/admin">http://143.47.98.96/app206/admin</a></li>
+<li><strong>Product CRUD:</strong> <a href="http://143.47.98.96/app206/crud">http://143.47.98.96/app206/crud</a></li>
+<li><strong>Messages:</strong> <a href="http://143.47.98.96/app206/messages">http://143.47.98.96/app206/messages</a></li>
+<li><strong>Projects:</strong> <a href="http://143.47.98.96/app206/projects">http://143.47.98.96/app206/projects</a></li>
+</ul>
+<hr>
+<p><strong>Document Version:</strong> 1.0<br><strong>Last Updated:</strong> November 28, 2025<br><strong>Status:</strong> Production Ready ✅</p>
+<hr>
+<p>© 2025 TechCorp Solutions | Developed by Mikhael Nabil Salama Rezk &amp; Szabó Lilla</p>
+
+</body>
+</html>
