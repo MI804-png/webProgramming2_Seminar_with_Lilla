@@ -4,6 +4,7 @@ module.exports = {
       name: 'app206',
       script: 'start.js',
       instances: 1,
+      exec_mode: 'fork',  // Use fork mode to avoid port conflicts
       autorestart: true,
       watch: false,
       max_memory_restart: '512M',

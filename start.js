@@ -11,13 +11,13 @@ const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 
-// Import route modules
-const authRoutes = require('./routes/auth');
-const databaseRoutes = require('./routes/database');
-const contactRoutes = require('./routes/contact');
-const messagesRoutes = require('./routes/messages');
-const crudRoutes = require('./routes/crud');
-const projectsRoutes = require('./routes/projects');
+// Import route modules - DISABLED (routes are defined inline below)
+// const authRoutes = require('./routes/auth');
+// const databaseRoutes = require('./routes/database');
+// const contactRoutes = require('./routes/contact');
+// const messagesRoutes = require('./routes/messages');
+// const crudRoutes = require('./routes/crud');
+// const projectsRoutes = require('./routes/projects');
 
 // Environment configuration
 const DB_HOST = process.env.DB_HOST || 'localhost';
@@ -584,13 +584,13 @@ router.get('/health', (req, res) => {
     });
 });
 
-// Use route modules
-router.use('/auth', authRoutes);
-router.use('/database', databaseRoutes);
-router.use('/contact', contactRoutes);
-router.use('/messages', messagesRoutes);
-router.use('/crud', crudRoutes);
-router.use('/projects', projectsRoutes);
+// Use route modules - DISABLED (routes are defined inline below)
+// router.use('/auth', authRoutes);
+// router.use('/database', databaseRoutes);
+// router.use('/contact', contactRoutes);
+// router.use('/messages', messagesRoutes);
+// router.use('/crud', crudRoutes);
+// router.use('/projects', projectsRoutes);
 
 // Authentication routes (keeping some in main file for compatibility)
 router.get('/login', (req, res) => {

@@ -1,8 +1,8 @@
 -- ReNew Ltd. Notebook Database
 -- Database for refurbished notebook sales
 
-CREATE DATABASE IF NOT EXISTS notebook CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE notebook;
+-- Using existing db206 database
+USE db206;
 
 -- Processor table
 CREATE TABLE IF NOT EXISTS processor (
