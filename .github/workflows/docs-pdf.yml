@@ -9,7 +9,7 @@ jobs:
     container: pandoc/latex:latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build PDF with Pandoc
         run: |
