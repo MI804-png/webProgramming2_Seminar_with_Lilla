@@ -20,7 +20,7 @@ jobs:
             -V mainfont="DejaVu Serif" -V monofont="DejaVu Sans Mono"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: documentation-pdf
           path: build/Documentation-Full.pdf
